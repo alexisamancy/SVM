@@ -1,0 +1,38 @@
+dist: xenial
+sudo: false
+latex: true
+language: r
+r: release
+
+warnings_are_errors: false  
+
+cache: 
+  packages : true
+
+apt_packages: 
+  - libgdal-dev
+  - libudnuits2-dev
+
+r_packages:
+  - rsconnect
+  - shiny
+  - tidyverse
+  - PRROC
+  - pROC
+  - ROCR
+  - DMwR
+  - e1071
+  - rpart
+  - Hmisc
+  - questionr
+  - broom
+  - forestmodel
+  - MASS
+  - randomForest
+  - markdown
+  - rmarkdown
+  - knitr
+  - corrplot
+
+script:
+  - R -f deploy.R

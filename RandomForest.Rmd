@@ -42,7 +42,7 @@ knitr::opts_chunk$set(echo = TRUE)
 </p>
 
 ```{r, include=FALSE, echo=FALSE, warning=FALSE, message=FALSE}
-table<-read.csv("C:/Users/Amancy/Documents/M2/Semestre 1/Support Vector Machine/projet/demo/hey/creditcard.csv")
+table<-read.csv("C:/Users/Amancy/Documents/GitHub/SVM/creditcard.csv")
 attach(table)
 table_bis<-mutate(table,Class=ifelse(Class=="0","sain","defaut"))
 Class=as.data.frame(as.factor(table_bis$Class))

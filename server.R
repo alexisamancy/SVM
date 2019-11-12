@@ -14,13 +14,10 @@ library(broom)
 library(forestmodel)
 library(MASS)
 library(randomForest)
-library(rayshader)
-library(ggplot2)
-options(rgl.useNULL = TRUE)
-library(rgl)
+
 
 #Importation des données
-table<-read.csv("C:/Users/Amancy/Documents/M2/Semestre 1/Support Vector Machine/projet/demo/hey/creditcard.csv")
+table<-read.csv("C:/Users/Amancy/Documents/GitHub/SVM/creditcard.csv")
 attach(table)
 
 #Rééchantillonnage et partionnement

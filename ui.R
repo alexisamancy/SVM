@@ -2,8 +2,6 @@ library(shiny)
 library(markdown)
 library(rmarkdown)
 library(knitr)
-library(rgl)
-options(rgl.useNULL = TRUE)
 
 fluidPage(
 

@@ -40,7 +40,7 @@ On peut maintenant faire de prédictions sur l'échantillon test. L'objectif ét
 </p>
 
 ```{r, include=FALSE, echo=FALSE, message=FALSE, warning=FALSE}
-table<-read.csv("C:/Users/Amancy/Documents/M2/Semestre 1/Support Vector Machine/projet/demo/hey/creditcard.csv")
+table<-read.csv("C:/Users/Amancy/Documents/GitHub/SVM/creditcard.csv")
 table_bis<-mutate(table,Class=ifelse(Class=="0","sain","defaut"))
 Class=as.data.frame(as.factor(table_bis$Class))
 table_bis<-replace(table_bis,31,Class)
