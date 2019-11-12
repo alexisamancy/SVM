@@ -1,0 +1,201 @@
+---
+output: html_document
+---
+
+```{r setup, include=FALSE, warning=FALSE}
+library(knitr)  
+library(rmarkdown) 
+library(markdown)
+library(questionr)
+library(ggplot2)
+library(tidyverse)
+library(MASS)
+library(DMwR)
+library(corrplot)
+library(Hmisc)
+library(broom)
+library(pROC)
+library(ROCR)
+library(PRROC)
+library(forestmodel)
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+
+<hr style="border: none;
+           border-top: 3px double #333;
+           color: blue;
+           overflow: visible;
+           text-align: center;
+           height: 5px;">
+
+<p style="text-align:right";>
+![](C:\Users\Amancy\Pictures/logoESA.jpg){width=3cm}
+</p>
+
+<p style="color: #d1454e;font-size:3em;text-align:center">
+**_Régression Logistique_**      
+</p> 
+
+<p style="color: #7869b3;font-size:2em;text-align:left;text-decoration : underline;">
+**_Pourquoi la régression logistique ?_**
+</p>
+
+<p style="text-align:justify";>
+La **régression logistique** est l’un des algorithmes d’apprentissage automatique les plus couramment utilisés en matière de classification **binaire** et lorsque nous appliquons un kernel de type linéaire à notre SVM, c’est deux dernières méthodes **se rapprochent**. En Statistiques, nous devons constamment faire face à un **trade-off** entre *pouvoir prédicitf* et *interprétabilité* des résultats. Le principal avantage de la régression logistique comparée au SVM est alors sa force d’interprétabilité. C’est ainsi qu’on décide de l’utiliser comme premier **benchmark**. Nous gardons ici le même rééchantillonnage que pour le SVM.
+</p>
+
+<p style="color: #7869b3;font-size:2em;text-align:left;text-decoration : underline;">
+**_Résultats_**
+</p>
+
+<p style="text-align:justify";>
+Pour la sélection de nos variables, nous choisissons la sélection automatique **'forward'** avec la fonction **'stepAIC'**. Tout d'abord, avec la fonction glm, nous avons regrésser la variable Class sur les variables selectionnée grâce à la méthode de sélection forward. Rappel de la séléction forward : Au départ, notre modèle contient seulement la constante. La sélection forward va alors choisir de faire rentrer une variable dans un modèle. Pour faire ce choix, un test du Langrange Multiplier est fait. La variable choisit est alors celle dont la p-value est inférieure à un seuil que l'on fixe. Ce processus s'arrete lorsque ce seuil devient inferieur à la p-value. Toute variable qui entre dans le modèle ne peut en sortir.  On obtient alors le modèle suivant : 
+</p>
+
+```{r include=FALSE, echo=FALSE, warning=FALSE, message=FALSE}
+table<-read.csv("C:/Users/Amancy/Documents/M2/Semestre 1/Support Vector Machine/projet/demo/hey/creditcard.csv")
+attach(table)
+table_bis<-mutate(table,Class=ifelse(Class=="0","sain","defaut"))
+Class=as.data.frame(as.factor(table_bis$Class))
+table_bis<-replace(table_bis,31,Class)
+newtable <- SMOTE(Class ~ ., table_bis, perc.over =600 ,perc.under =250 )
+set.seed(123)  
+obs<-1:nrow(newtable)
+long_obs<-length(obs)
+ech<-sample(obs,0.7*long_obs,replace=FALSE)  
+train<-newtable[ech,]
+test<-newtable[-ech,] 
+newtable$Class<-relevel(newtable$Class,"sain")
+newtable$Class=factor(newtable$Class)
+set.seed(123)
+reg0<-glm(Class~1,data=train,family=binomial(logit))
+set.seed(123)
+mod_forward<-stepAIC(reg0,Class~V1+V2+V3+V4+V5+V6+V7+V8+V9+V10+V11+V12+V13+V14+V15
+                     +V16+V17+V18+V19+V20+V21+V22+V23+V24+V25+V26+V27+V28+Amount+Time
+                     , data=train, trace=T,direction=c("forward"))
+
+```
+
+```{r include=TRUE, echo=FALSE, warning=FALSE, message=FALSE, fig.align="center", fig.height=5}
+summary(mod_forward)
+```
+
+```{r include=TRUE, echo=FALSE, message=FALSE, warning=FALSE, fig.align="center", fig.height=5}
+tmp<-tidy(mod_forward, conf.int=T, exponentiate=T)
+ggplot(tmp)+aes(x=estimate,y=term,xmin=conf.low,xmax=conf.high)+
+  geom_vline(xintercept = 1) + geom_errorbarh() + geom_point()+
+  scale_x_log10()
+```
+</p>
+
+<p style="text-align:justify";>
+Nous remarquons que le terme de « deviance » est employé deux fois dans la sortie. La déviance est une mesure de qualité de l'ajustement d'un modèle linéaire généralisé. Cette sortie nous signale deux formes de déviance : la déviance **nulle** et la déviance **résiduelle**. 
+</p>
+
+<p style="text-align:justify";>
+Que signifie la déviance du modèle nul (Null deviance) ? Le modèle nul est caractérisé par aucun effet du facteur, donc p = constante. (L’estimation du maximum de vraisemblance de la probabilité se fait par la fréquence). 
+</p>
+<p style="text-align:justify";>
+L'interprétation suivante va nous permettre de comprendre la déviance résiduelle : Dans notre cas, nous avons une valeur de 9436.6 sur 7575 degrés de liberté. L'inclusion des variables explicatives (citées dans la fonction glm) a réduit la déviance à 1562 points sur 7546 degrés de liberté, ce qui représente une réduction significative de la déviance.
+</p>
+
+<p style="text-align:justify";>
+Ensuite dans la partie **_Coefficients_**, on retrouve l'ensemble de nos estimateurs, l'écart type, la z-value, qui représente ici le test de Fisher, et enfin la p-value de chaque variable. On peut voir ici la significativité de chaque variable grâce aux étoiles, qui précisent à quels seuil la variable est significative. Dans notre cas, seulement les variables V21, V27, V24 et V19 ne sont pas significatives.
+
+<p style="text-align:justify";>
+Une ligne précise la valeur de l'AIC : le critère d'information d'Akaike, qui permet de mesurer la qualité de notre modèle en comparaison avec d'autres modèles. Le modèle avec l'AIC le plus faible est alors choisi.
+</p>
+
+<p style="text-align:justify";>
+Enfin nous avons le nombre d'itérations de l'algorithme de Fisher qui est égale à 13. Cela signifie que l'algorithme de scoring de Fisher à eu besoin de 13 itérations pour effectuer l'ajustement du modèle.
+</p>
+
+<p style="color: #7869b3;font-size:2em;text-align:left;text-decoration : underline;">
+**_Matrice de confusion_**
+</p>
+
+```{r include=FALSE, echo=FALSE}
+set.seed(123)
+glm.probs<-predict(mod_forward,type="response",newdata=test)
+glm.pred<-rep(1,nrow(test))
+glm.pred[glm.probs>.5]=0
+mc_log<-data.frame(table(test$Class,glm.pred))
+names(mc_log)<-c("Predicted","Actual","Value")
+```
+```{r include=TRUE, echo=FALSE, fig.align="center", fig.height=5}
+ggplot(data = mc_log,
+       mapping = aes(x = Predicted,
+                     y = Actual)) +
+  geom_tile(aes(fill = Value)) +
+  geom_text(aes(label = sprintf("%1.0f", Value)), vjust = 1) +
+  scale_fill_gradient(low = "bisque",
+                      high = "indianred3",
+                      trans = "log") +
+  theme(
+    legend.background = element_rect(fill = "peachpuff2"),
+    legend.key.size = unit(1, "cm"),
+    legend.key.width = unit(1, "cm"))+
+  theme(panel.background = element_rect( colour='peachpuff2'), axis.title.x = element_text(colour = "lightsalmon4", size=rel(1)),
+        axis.title.y = element_text(colour = "lightsalmon4",size=rel(1)),
+        plot.background = element_rect(fill="peachpuff2"))
+```
+
+<p>&nbsp; </p>
+
+<p style="font-size:1em;
+          text-align:justify">
+Comme pour le SVM, la matrice de confusion va nous fournir des informations sur les erreurs de classification de la régression logistique.  Nous avons ici un taux d'erreur de classification de **3.9%** et donc **96,1%** d'individus correctement classés. Le taux d'exatitude des individus correctement classés ici est inferieur à celui trouvé pour le SVM, qui était de 98,6 %. Mais cette différence n'est pas flagrante..  
+</p>
+
+<p style="color: #7869b3;font-size:2em;text-align:left;text-decoration : underline;">
+**_Courbe ROC_**
+</p>
+
+```{r inculude=FALSE, echo=FALSE, message=FALSE, warning=FALSE}
+set.seed(123)
+p<-prediction(glm.probs,test$Class)
+auc <- performance(p, measure = "auc")
+auc <- auc@y.values[[1]]
+```
+```{r include=TRUE, echo=FALSE, message=FALSE, warning=FALSE, fig.align="center", fig.height=5}
+par(bg="snow2")
+plot(roc(test$Class, glm.probs, direction="<"),
+     col="mediumvioletred", lwd=3, main="Courbe ROC", xlab="1 - Spécificité", ylab="Sensitivité",
+                            print.auc=TRUE)
+
+```
+
+<p>&nbsp; </p>
+
+<p style="font-size:1em;
+          text-align:justify">
+On rappelle que plus l'AUC tend vers 1 et plus la performance du modèle augmente. On voit que notre statistique est de **0.989**. Cela signifie donc que, face à deux individus, l'un faisant défaut et l'autre étant sain, dans 98.9% des cas, le modèle arrive à distinguer la personne frauduleuse de la personne saine.
+</p>
+
+<p style="color: #7869b3;font-size:2em;text-align:left;text-decoration : underline;">
+**_Courbe PR_**
+</p>
+
+```{r inculude=FALSE, echo=FALSE, message=FALSE, warning=FALSE}
+set.seed(123)
+score1_lm= glm.probs[test$Class=="defaut"]
+score0_lm= glm.probs[test$Class=="sain"]
+pr_lm= pr.curve(score0_lm, score1_lm, curve = T)
+```
+```{r include=TRUE, echo=FALSE, message=FALSE, warning=FALSE, fig.align="center", fig.height=5}
+par(bg="snow2")
+lm_pr<-plot(pr_lm,  col="mediumvioletred", lwd=3, main="Courbe PR")
+text(0.5,0.5,paste("AUC = ",format(pr_lm$auc.integral, digits=5, scientific=FALSE)))
+
+```
+<p>&nbsp; </p>
+
+<p style="font-size:1em;
+          text-align:justify">
+Concerant la courbe precision-recall, nous avons une aire sous la courbe à hauteur de **0.99**.
+</p>
+
+<p>&nbsp; </p>
+<p>&nbsp; </p>

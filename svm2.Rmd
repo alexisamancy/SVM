@@ -1,0 +1,149 @@
+---
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(shiny)
+library(rmarkdown)
+library(markdown)
+library(pROC)
+library(PRROC)
+library(DMwR)
+library(tidyverse)
+library(e1071)
+library(rpart)
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+<p style="text-align:justify";>
+Plus la barre est haute et tend vers la couleur violette, et plus le taux d'exactitude est elevé. On voit ici que le coût de pénalisation donnant le taux d'exactitude le plus élevé est **300**. Cependant, on ne distingue pas bien pour quel valeur de gamma notre taux d'exactitude est le plus élevé. Voici les détails de notre fonction **_TUNE_** : 
+</p>
+
+<p style="text-align:justify";>
+Le **gamma** selectionné, et qui donne (en alliance avec le coût de pénalisation de 300) le taux d'erreur le plus faible est à une valeur de **0.01**.
+</p>
+
+<p style="text-align:justify";>
+Ayant trouvé nos paramètres optimaux : un kernel RBF, son hyperparamètre gamma de 0.01 et le coût de pénalisation de 300, on peut maintenant appliquer le SVM à notre échantillon d'apprentissage, dans lequel on va régresser la variable Class sur l'ensemble des autres variables. Nous obtenons une information en plus : **492** de nos vecteurs sont des **vecteurs supports**.
+</p>
+
+<p style="color: #7869b3;font-size:2em;text-align:left;text-decoration : underline;">
+**Résultats et interprétations**
+</p>
+
+<p style="text-align:justify";>
+On peut maintenant faire de prédictions sur l'échantillon test. L'objectif étant de déduire des élements comme la matrice de confusion, la courbe ROC et la courbe precision-recall.
+</p>
+
+<p style="color: #7869b3;font-size:20px;text-align:left;text-decoration : underline;">
+**Matrice de confusion**
+</p>
+
+```{r, include=FALSE, echo=FALSE, message=FALSE, warning=FALSE}
+table<-read.csv("C:/Users/Amancy/Documents/M2/Semestre 1/Support Vector Machine/projet/demo/hey/creditcard.csv")
+table_bis<-mutate(table,Class=ifelse(Class=="0","sain","defaut"))
+Class=as.data.frame(as.factor(table_bis$Class))
+table_bis<-replace(table_bis,31,Class)
+newtable <- SMOTE(Class ~ ., table_bis, perc.over =600 ,perc.under =250)
+set.seed(123)
+obs<-1:nrow(newtable)
+long_obs<-length(obs)
+ech<-sample(obs,0.7*long_obs,replace=FALSE)
+train<-newtable[ech,] 
+test<-newtable[-ech,]
+svm.reg<-svm(Class~., data=train, gamma=0.01 ,cost=150) 
+pred<-predict(svm.reg,test[,-31], decision.values = TRUE)  #on retire la colonne class de test
+mc<-as.data.frame(table(pred,test$Class))
+names(mc)=c('Predicted','Actual','Value')
+```
+
+```{r, include=TRUE, echo=FALSE, message=FALSE, warning=FALSE, fig.align="center", fig.height=5}
+ggplot(data = mc,
+       mapping = aes(x = Predicted,
+                     y = Actual)) +
+  geom_tile(aes(fill = Value)) +
+  geom_text(aes(label = sprintf("%1.0f", Value)), vjust = 1) +
+  scale_fill_gradient(low = "bisque",
+                      high = "indianred3",
+                      trans = "log") +
+  theme(
+    # Modifier la couleur de fond de la l?gende
+    legend.background = element_rect(fill = "peachpuff2"),
+    # Modifier la taille et la largeur des signes de la l?gende
+    legend.key.size = unit(1, "cm"),
+    legend.key.width = unit(1, "cm"))+
+  theme(panel.background = element_rect( colour='peachpuff2'), axis.title.x = element_text(colour = "lightsalmon4", size=rel(1)),
+        axis.title.y = element_text(colour = "lightsalmon4",size=rel(1)),
+        plot.background = element_rect(fill="peachpuff2"))
+
+```
+
+<p style="text-align:justify";>
+Nous avons un taux d'erreur de 1.4% et donc **98,6%** d'individus correctement classés.
+</p>
+
+<p style="color: #7869b3;font-size:20px;text-align:left;text-decoration : underline;">
+**Courbe ROC**
+</p>
+
+<p style="text-align:justify";>
+La **courbe ROC** est représentée sur un graphique représentant les performances d'un modèle de classification pour tous les seuils de classification. Cette courbe trace le taux de vrais positifs en fonction du taux de faux positifs. Le taux de vrais positifs correspond à la **sensitivité**, c’est-à-dire la proportion d'individus qui ont connu l'évènement (sont en défaut) et correctement classés par le modèle. Le taux de faux positifs correspond à **1 - spécificité**, qui quant à elle, correspond à la proportion n'ayant pas connu l'évènement et ayant été prédit comme tel par le modèle. Ce qui nous intéresse dans ce graphique est **l'AUC**, l'aire sous la courbe ROC. Cette statistique nous fournit une mesure agrégée des performances pour tous les seuils de classification possibles.
+</p>
+
+```{r, include=FALSE, echo=FALSE, warning=FALSE, message=FALSE}
+dv_svm<-attributes(pred)$decision.values
+```
+
+```{r, include=TRUE, echo=FALSE, warning=FALSE, message=FALSE, fig.align="center", fig.height=5}
+par(bg="snow2")
+svm_roc <- plot.roc(as.numeric(test$Class), dv_svm,col="mediumvioletred", lwd=3, xlab = "1 - Spécificité",ylab="Sensitivite", print.auc=TRUE)
+```
+
+<p style="text-align:justify";>
+Plus l'AUC tend vers 1 et plus la performance du modèle augmente. On voit que notre statistique est de 0.997. Cela signifie donc que, face à deux individus, l'un faisant défaut et l'autre étant sain, dans 99.7% des cas, le test arrive à distinguer l'individu qui fait défaut de la personne saine.
+</p>
+
+<p style="color: #7869b3;font-size:20px;text-align:left;text-decoration : underline;">
+**Courbe Precision-Recall**
+</p>
+
+<p style="text-align:justify";>
+La **courbe precision-recall** représente le compromis entre le taux positif réel et la valeur prédictive positive pour un modèle prédictif utilisant différents seuils de probabilité. Les notions de **précision** et de **recall** sont définies comme telles: la précision est une mesure de la pertinence des résultats, tandis que le recall est une mesure du nombre de résultats réellement pertinents renvoyés.
+De ce fait, la courbe precision-recall montre le compromis entre précision et recall pour différents seuils. Si la zone sous la courbe est grande, cela signigfie que ces deux mesures sont élevées. Une précision élevée correspond alors à un faible taux de faux positifs, et un rappel élevé correspond à un faible taux de faux négatifs. Si ces deux mesures présentent des valeurs élevées, alors on peut dire que le classifieur renvoie des résultats précis (haute précision), ainsi que la majorité des résultats positifs (recall élevé). Voici un example de courbe precision-recall
+</p>
+
+```{r, include=FALSE, echo=FALSE, warning=FALSE, message=FALSE}
+    score1_svm=pred[test$Class=="defaut"]
+    score0_svm= pred[test$Class=="sain"]
+    pr_svm= pr.curve(score0_svm, score1_svm, curve = T)
+```
+
+```{r, include=TRUE, echo=FALSE, warning=FALSE, message=FALSE, fig.align="center", fig.height=5}
+par(bg="snow2")
+svm_pr<-plot(pr_svm,  col="mediumvioletred", lwd=3, main="Courbe PR")
+```
+<p>&nbsp; </p>
+
+<p style="color: #7869b3;font-size:2em;text-align:left;text-decoration : underline;">
+**Les SVM : bonne ou mauvaise méthode ?**
+</p>
+
+<p style="text-align:justify";>
+L'application d'un SVM à cette base de données nous a permis de souligner certaines **difficultés**, que l'on pourrait considérer comme étant des complications, mais nous a aussi révelé certaines de ses **aptitudes**. En effet, la méthode du SVM possède une facilité à traiter de grandes dimensionalités, tout en nous permettant de traiter les problèmes non linéaires grâce au choix des noyaux. De plus, le choix du paramètre de pénalisation C nous permet d'avoir le contrôle sur les points dit « aberrants », ce qui revèle une certaine **robustesse** de cette méthode vis-à-vis de ces points-là.
+</p>
+
+<p style="text-align:justify";>
+Cependant, les paramètres, nous permettant de trouver le taux d'erreur de classification le plus faible, sont **difficiles à identifier**. Nous avons aussi remarqué qu'il était compliqué de traiter les grandes bases avec un nombre d'observations très élevé (temps de calcul long, ce qui nous a contraint à faire un rééchantillonnage). Enfin, nous avons constaté des difficultés concernant les interprétations.
+</p>
+
+<p style="text-align:justify";>
+Cette analyse nous a permis d'avoir un permier aperçu des résultats et interprétations que l'on peut tirer de cette base de données. Précedemment, nous avons dressé un bilan anticipé sur l'utilisation de cette méthode en citant les difficultés et les facilités rencontrées lors de la construction de l'analyse. Nous voulons maintenant developper deux autres analyses avec deux autres méthodes supervisées, pour pouvoir comparer leurs resultats et leurs performances à celle du SVM, et pouvoir donc fournir un bilan général reprenant toute notre analyse. Ces analyses seront réalisées à partir d'une **Régression Logistique** et de la méthode du **Random Forest**.
+</p>
+
+<p style="text-align:justify";>
+Mais avant cela, vous avez la main dans l’onglet suivant sur une **visualisation interactive** du SVM sur notre base de données.
+</p>
+
+
+<p>&nbsp; </p>
+<p>&nbsp; </p>

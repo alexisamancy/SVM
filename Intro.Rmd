@@ -1,0 +1,94 @@
+---
+#title: "Notice"
+#author: "Amancy Alexis & Mazloum Sabrina"
+#date: "15 octobre 2019"
+output: html_document
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, echo=FALSE, warning=FALSE}
+library(knitr)  
+library(rmarkdown) 
+library(markdown)
+```
+
+<p style="text-align:right";>
+![](C:\Users\Amancy\Pictures/logoESA.jpg){width=3cm}
+</p>
+
+<p style="color: #d1454e;font-size:3em;text-align:center">
+**_Présentation du démonstrateur_**      
+</p> 
+
+
+<div>
+<p style="color: #a88588;text-align:justify;margin:.2em .5em;padding:0.1em .5em;border:2px solid black";>
+**Cette application, développée par [Alexis AMANCY](https://www.linkedin.com/in/alexis-amancy-a50901133/) et [Sabrina MAZLOUM](https://www.linkedin.com/in/sabrina-mazloum-26359717a/) a pour but d'illustrer l'implémentation des SVM (Support Vector Machine) dans un contexte de détection de fraude sur des cartes de crédit. Après avoir présenté la base de données, nous définirons brièvement les machines à vecteurs de support. Enfin, nous comparerons cette méthode à d'autres techniques de classification supervisée afin d'étudier son intérêt et de comparer leurs performances.**</p> 
+</div>
+
+<hr color="blue">
+
+<p style="color: #7869b3;font-size:2em;text-align:left;text-decoration : underline;">
+**_La base de données_**
+</p>
+
+<p style="text-align:justify";>Vous pouvez retrouver la base de données [ici](https://www.kaggle.com/mlg-ulb/creditcardfraud"). Cette base de données contient 284 807 transactions de cartes de crédit et seulement 492 sont frauduleuses, ce qui représente 0,172% des transactions. La base de données étant disproportionnée, nous avons dû procéder à un ré-échantillonnage afin d'éviter que notre modèle soit trop biaisé. Nous avons ensuite séparé notre nouvel échantillon en deux sous-échantillons : notre échantillon d'**apprentissage** et notre échantillon **test**.</p>    
+
+<!-- a -->
+  
+<p style="text-align:justify";>La variable **_Class_** est notre variable cible, elle prend les valeurs 1 si la transaction est dite frauduleuse et 0 sinon. Nous disposons de 30 prédicteurs, tous numériques. 28 variables sont anonymisées, nommées de **_V1_** à **_V28_**, issues d'une transformation PCA. Deux autres variables sont également disponibles : **_Time_** et **_Amount_**. La variable **_Time_** représente le temps écoulé en secondes entre chaque transaction et la première transaction dans la base de données. Enfin, la variable **_Amount_** représente le montant de la transaction.</p>
+
+<p style="color: #7869b3;font-size:2em;text-align:left;text-decoration : underline;">
+**_Les SVM, qu'est-ce que c'est ?_**
+</p>
+
+<p style="text-align:justify";>Développées véritablement dans les années 90 par Boser, Guyon et Vapnik à partir des considérations théoriques de ce dernier, les machines à vecteurs support (parfois traduis par « séparateurs à vastes marges ») est une technique de Machine Learning visant à solutionner des problématiques de classification et de régression. Dans notre cas précis, on s'intéresse à un problème de classification. L'objectif de notre SVM est alors de parfaitement prédire si une transaction sera frauduleuse, ou non. </p>
+
+
+**Mais comment fonctionnent-ils ?** 
+
+
+<p style="text-align:justify";>Illustrons nos propos. Imaginons que les points bleus représentent les transactions non frauduleuses, et les points rouges les transactions dites frauduleuses.</p> 
+
+<p style="text-align:center";>
+![](C:\Users\Amancy\Pictures/svm1.jpg){width=15cm}
+</p>
+
+<p>&nbsp; </p>
+
+
+<p style="text-align:justify";>Le SVM va essayer de définir une frontière optimale (un **hyperplan**) qui maximise la distance entre cette dernière et les observations les plus proches (**vecteurs supports**). Cette distance s'appelle la **marge**, et dans le cas d'un hyperplan optimal, c'est la marge maximale. Pour cet exemple, l'image illustre le cas d'une frontière optimale. On dit qu'elle a la **meilleure capacité de généralisation**.</p>
+
+
+<p style="text-align:justify";>En réalité, les données ne sont que très rarement linéairement séparables. C'est pourquoi nous aurons recours à l'utilisation de fonctions noyau (**kernel trick**). Le but est d'augmenter la dimension de l'espace de représentation afin d'augmenter les chances de séparations linéaires.</p>
+
+<p style="text-align:justify";>Le professeur [Christophe Hurlin](https://sites.google.com/view/christophe-hurlin/home?authuser=0) vous explique en détail l'utilisation des **machines à vecteurs de support** [ici](https://sites.google.com/view/christophe-hurlin/teaching-resources/support-vector-machine).</p>  
+
+<p>&nbsp; </p>
+
+<p style="color: #7869b3;font-size:2em;text-align:left;text-decoration : underline;">
+**_Pourquoi les SVM ?_**
+</p>
+
+<p style="text-align:justify";>Vous avez la main dans ce démonstrateur sur plusieurs **hyperparamètres** en fonction du type de **kernel** utilisé, vous pourrez également choisir ce dernier. Leurs différences seront détaillées au sein du démonstrateur. 
+Pour étudier les performances de notre modèle, nous l'avons challengé à plusieurs benchmarks, à savoir la **régression logistique** et le **Random Forest**. Un onglet comparaison sera à votre disposition pour étudier les différentes performances de nos différents modèles.
+Les SVM ont un avantage de taille comparés à ses principaux concurrents. Ils sont effectivement très efficaces quand on ne dispose que de peu de données d'entraînement, on dit qu'ils ont alors une forte capacité de généralisation. En revanche, lorsque les données deviennent trop nombreuses, les SVM ont tendance à baisser en performance.</p>
+
+ <hr style="border: none;
+            border-top: 3px double #333;
+            color: #333;
+            overflow: visible;
+            text-align: center;
+            height: 5px;">
+                       
+
+
+<p style="text-align:justify";>
+Vous pouvez retrouvez les codes utilisés à la réalisation de ce démonstrateur sur [GitHub](https://github.com/alexisamancy/svmproject).
+</p>
+
+<p>&nbsp; </p>

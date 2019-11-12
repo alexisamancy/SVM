@@ -1,0 +1,187 @@
+---
+output: html_document
+---
+
+```{r setup, include=FALSE, message=FALSE, warning=FALSE}
+library(knitr)  
+library(rmarkdown) 
+library(markdown)
+library(DMwR)
+library(questionr)
+library(ggplot2)
+library(tidyverse)
+library(MASS)
+library(corrplot)
+library(Hmisc)
+library(broom)
+library(ROCR)
+library(PRROC)
+library(forestmodel)
+library(pROC)
+library(randomForest)
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+<hr style="border: none;
+           border-top: 3px double #333;
+           color: blue;
+           overflow: visible;
+           text-align: center;
+           height: 5px;">
+
+<p style="text-align:right";>
+![](C:\Users\Amancy\Pictures/logoESA.jpg){width=3cm}
+</p>
+
+<p style="color: #d1454e;font-size:3em;text-align:center">
+**_Random Forest_**      
+</p> 
+
+<p style="color: #7869b3;font-size:2em;text-align:left;text-decoration : underline;">
+**_Pourquoi le Random Forest ?_**
+</p>
+
+```{r, include=FALSE, echo=FALSE, warning=FALSE, message=FALSE}
+table<-read.csv("C:/Users/Amancy/Documents/M2/Semestre 1/Support Vector Machine/projet/demo/hey/creditcard.csv")
+attach(table)
+table_bis<-mutate(table,Class=ifelse(Class=="0","sain","defaut"))
+Class=as.data.frame(as.factor(table_bis$Class))
+table_bis<-replace(table_bis,31,Class)
+newtable <- SMOTE(Class ~ ., table_bis, perc.over =600 ,perc.under =250 )
+set.seed(123)  
+obs<-1:nrow(newtable)
+long_obs<-length(obs)
+ech<-sample(obs,0.7*long_obs,replace=FALSE)  
+train<-newtable[ech,]
+test<-newtable[-ech,] 
+newtable$Class<-relevel(newtable$Class,"sain")
+newtable$Class=factor(newtable$Class)
+set.seed(123)
+fit_100<-randomForest(Class~.,data=train, ntree=100, na.action=na.omit)
+```
+
+<p style="text-align:justify";>
+Les **forêts aléatoires** sont un ensemble d'arbres décisionnels. Ces arbres se distinguent les uns des autres par le sous-échantillon de données sur lequel ils sont entraînés. Ces sous-échantillons sont tirés au hasard (d'où le terme "aléatoire") dans le jeu de données initial. L'objectif du Random Forest est de réduire la variance des prévisions d’un arbre de décision seul, améliorant ainsi leurs performances. Pour cela, il combine de nombreux arbres de décisions dans une approche de type bagging. La technique du Random Forest permet de fournir une précision plus fine des prédictions, mais permet aussi de diminuer les chance « d’overfitting » (cas où le modèle est parfaitement adapté aux données, mais se généralise très mal).
+</p>
+
+<p style="text-align:justify";>
+Avant d'appliquer le random Forest à nos données, nous avons **paramétré** notre modèle. En effet, nous avons choisi de contrôler deux paramètres principaux : le nombre d'arbre (ntree) et le nombre de variables testées à chaque split (mtry). Augmenter le nombre d'arbres pourrait régler le biais d'échantillonnage provoquer par la « part d'aléatoire » du Random Forest. Dans notre cas le « ntree » optimal est 100. Le second paramètre principal est le « mtry », la valeur par défaut étant la racine carrée du nombre de variables. Dan notre cas, le « mtry » optimal s'élève à 5.
+</p>
+
+<p style="text-align:justify";>
+Nous appliquons maintenant le random forest avec les paramètres optimaux, voici les résultats : 
+</p>
+
+```{r, include=TRUE, echo=FALSE, warning=FALSE, message=FALSE, fig.align="center", fig.height=5}
+set.seed(123)
+fit_100
+```
+
+<p style="text-align:justify";>
+En dessous de la fonction **_randomForest_**, nous avons les informations sur le type d'arbre (ici, arbre de classification), le nombre d'arbre (100), le « Out Of Bag estimate of error rate » (l'erreur Out Of Bag) qui s'élève ici à 1.64% et enfin la matrice de confusion. L’erreur Out Of Bag est utilisée pour mesurer la performance des modèles d’agrégation. Il s’agit de l’erreur moyenne calculée, à chaque fois, sur les échantillons qui n’ont pas servis à calculer le modèle. Plus ce taux est faible, plus le modèle est juste.
+</p>
+
+<p style="text-align:justify";>
+Nous pouvons d'ailleurs accéder au nombre de fois ou un individu a été laissé « out of bag » grâce à cet histogramme :
+</p>
+
+
+```{r, include=TRUE, echo=FALSE, warning=FALSE, message=FALSE, fig.align="center", fig.height=5}
+par(bg="snow2")
+hist(fit_100$oob.times, col="mediumvioletred")
+```
+
+<p style="text-align:justify";>
+De plus, la méthode du Random Forest nous permet de connaitre l'importance des variables, plus précisement, la diminution moyenne de l’impureté apportée par chaque variable. Elle est calculée par l’indice de Gini : plus cet indicateur est élevé plus la variable est importante dans le modèle (il mesure la diminution de l’indice de Gini si l’on n’intégrait plus cette variable dans le modèle). En voici une illustration : 
+</p>
+
+```{r, include=TRUE, echo=FALSE, warning=FALSE, message=FALSE, fig.align="center", fig.height=5}
+par(bg="snow2")
+impToPlot <- importance(fit_100, scale=FALSE)
+dotchart(sort(impToPlot[,1]), xlab="Importance", main="Importance des variables", 
+         col="#d1454e", bg="#d1454e", cex=0.6)
+
+```
+
+<p style="color: #7869b3;font-size:2em;text-align:left;text-decoration : underline;">
+**_Matrice de confusion_**
+</p>
+
+<p style="text-align:justify";>
+Jettons maintenant un oeil sur la matrice de confusion :
+</p>
+
+```{r include=FALSE, echo=FALSE, warning=FALSE, message=FALSE}
+set.seed(123)
+prediction_rf<-predict(fit_100 ,test)
+mc_rf<-data.frame(table(prediction_rf, test$Class))
+names(mc_rf)=c('Predicted','Actual','Value')
+```
+
+```{r include=TRUE, echo=FALSE, fig.align="center", fig.height=5}
+ggplot(data = mc_rf,
+       mapping = aes(x = Predicted,
+                     y = Actual)) +
+  geom_tile(aes(fill = Value)) +
+  geom_text(aes(label = sprintf("%1.0f", Value)), vjust = 1) +
+  scale_fill_gradient(low = "bisque",
+                      high = "indianred3",
+                      trans = "log") +
+  theme(
+    legend.background = element_rect(fill = "peachpuff2"),
+    legend.key.size = unit(1, "cm"),
+    legend.key.width = unit(1, "cm"))+
+  theme(panel.background = element_rect( colour='peachpuff2'), axis.title.x = element_text(colour = "lightsalmon4", size=rel(1)),
+        axis.title.y = element_text(colour = "lightsalmon4",size=rel(1)),
+        plot.background = element_rect(fill="peachpuff2"))
+```
+
+<p style="text-align:justify";>
+On trouve un taux d'erreur de classification de 1.69%, et donc un taux d'exactitude de 98.3%. Le taux d'erreur ici est plus faible que celui trouvé pour la régression logistique, mais un peu plus elevé que le taux d'erreur trouvé pour le SVM.
+</p>
+
+<p style="color: #7869b3;font-size:2em;text-align:left;text-decoration : underline;">
+**_Courbe ROC_**
+</p>
+
+```{r inculude=FALSE, echo=FALSE, message=FALSE, warning=FALSE}
+set.seed(123)
+predictions <- as.data.frame(predict(fit_100, test, type = "prob"))
+ROC_rf<- roc(test$Class, predictions[,2])
+ROC_rf_auc <- auc(ROC_rf)
+```
+```{r include=TRUE, echo=FALSE, message=FALSE, warning=FALSE, fig.align="center", fig.height=5}
+par(bg='snow2')
+rf_roc<-plot(ROC_rf, col = "mediumvioletred", lwd=3, xlim=c(1,0), ylim=c(0,1), xlab="1 - Spécificité",                ylab="Sensitivité")
+text(0.5,0.5,paste("AUC = ",format(ROC_rf_auc, digits=5, scientific=FALSE)))
+
+```
+
+<p style="text-align:justify";>
+On voit que notre AUC s'élève ici à 0.999.  Cela signifie donc que, face à deux individus, l'un frauduleux et l'autre étant sain, dans 99.9 % des cas, le modèle arrive à les distinguer.
+</p>
+
+<p style="color: #7869b3;font-size:2em;text-align:left;text-decoration : underline;">
+**_Courbe PR_**
+</p>
+
+```{r inculude=FALSE, echo=FALSE, message=FALSE, warning=FALSE}
+    set.seed(123)
+    prediction_rf<-predict(fit_100 ,test)
+    score1_rf=prediction_rf[test$Class=="defaut"]
+    score0_rf= prediction_rf[test$Class=="sain"]
+    pr_rf= pr.curve(score0_rf, score1_rf, curve = T)
+```
+```{r include=TRUE, echo=FALSE, message=FALSE, warning=FALSE, fig.align="center", fig.height=5}
+par(bg='snow2')
+rf_pr<-plot(pr_rf,  col="mediumvioletred", lwd=3, main="Courbe PR")
+
+```
+
+<p style="text-align:justify";>
+Ici, nous obtenons une AUC de 0,97.
+</p>
+
+
+<p>&nbsp; </p>
+<p>&nbsp; </p>

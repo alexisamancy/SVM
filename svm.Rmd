@@ -1,0 +1,235 @@
+---
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE} 
+library(knitr)  
+library(rmarkdown) 
+library(markdown)
+library(corrplot)
+library(DMwR)
+library(tidyverse)
+library(e1071)
+library(rpart)
+```
+
+<hr style="border: none;
+           border-top: 3px double #333;
+           color: blue;
+           overflow: visible;
+           text-align: center;
+           height: 5px;">
+           
+<p style="text-align:right";>
+![](C:\Users\Amancy\Pictures/logoESA.jpg){width=3cm}
+</p>
+           
+<p style="color: #d1454e;font-size:3em;text-align:center">
+**_Notre analyse_**      
+</p> 
+
+<p style="color: #a88588;text-align:justify;margin:.2em .5em;padding:0.1em .5em;border:2px solid black";>
+Nous allons dans un premier temps analyser notre base de données.  L'objectif  étant de **comprendre** la base de données avec laquelle on travaille et d'en améliorer la **qualité**. Certaines modifications seront alors nécessaires, car elles auront un impact positif sur la **modélisation** et les **interprétations** futures. Dans un second temps, nous procéderons à la modélisation: l'application d'une machine à vecteur de support sur notre base de données. Nous expliquerons en détail l'importance des **choix des paramètres** pour notre modèle et comment ils peuvent **influencer** nos résultats. Enfin,  nous présenterons les **résultats** de notre modélisation et les interprétations qu'on peut en tirer.
+</p>
+
+<hr color="blue">
+
+<p style="color: #7869b3;font-size:2em;text-align:left;text-decoration : underline;">
+**Analyse de la base de données : Credit Card Fraud**
+</p>
+
+<p style="text-align:justify";>
+Cette base de donnéeq contient 284 807 observations et 31 variables. On rappelle rapidement les informations connues sur ces variables:  
+</p>
+<p style="text-align:justify";>  
+**_Class_** est notre variable cible, elle prend la valeur 1 si la transaction est frauduleuse et 0 sinon. Les 30 autres variables sont des prédicteurs numériques : 28 variables sont anonymisées, nommées de **_V1_** à **_V28_**, issues d'une transformation PCA,  **_Time_** qui représente le temps écoulé en secondes entre chaque transaction et la première transaction dans la base de données et **_Amount_** qui représente le montant de la transaction.
+Comme la majorité de nos prédicteurs sont anonymisées, il serait judicieux de s'informer sur d'éventuelles associations linéaires entre ces variables, car une forte association entre deux variables pourrait fortement impacter la suite de notre analyse. De ce fait, il est primordial d'analyser les corrélations qu'il pourrait y avoir entre les prédicteurs.
+</p>
+
+<p style="text-align:justify";>
+Pour cela, on réalise une **matrice de corrélation**: 
+</p>
+
+```{r, include=FALSE, echo=FALSE, warning=FALSE}
+table<-read.csv("C:/Users/Amancy/Documents/M2/Semestre 1/Support Vector Machine/projet/demo/hey/creditcard.csv")
+mcor<-cor(table)
+symnum(mcor,abbr.colnames = FALSE)
+```
+```{r, include=TRUE, echo=FALSE, message=FALSE, warning=FALSE, fig.align="center", fig.height=5}
+corrplot(mcor, method = "color", type = "upper",
+         sig.level = c(.001, .01, .05), pch.cex = .9,
+         insig = "label_sig", pch.col = "white", order = "AOE")
+```
+
+<p style="text-align:justify";>
+Nous remarquons que certaines corrélations sont plus fortes que d'autres. Par exemple, la corrélation entre les variables Amount et V20 est de 0.3, tout comme la corrélation entre Amount et V7. On remarque aussi que les variables Amount et V2 sont négativement corrélées à hauteur de 0.5. Cependant, il n'y a **rien d'alarmant**. Pour éviter de perdre de l'information, nous choisissons donc de garder l'ensemble de nos variables dans le modèle.
+</p>
+
+<hr color="blue">
+
+<p style="text-align:justify";>
+On veut maintenant vérifier si notre base de données est **déséquilibrée**. En d'autres termes, la répartition entre les transactions frauduleuses et les transactions non frauduleuses est-elle relativement **similaire** ?
+</p>
+
+```{r, include=TRUE, echo=FALSE, warning=FALSE, fig.align="center", fig.height=5}
+barplot((table(table$Class)),ylim=c(0,300000),main = "Fréquence de 0 et de 1 dans la base de données",
+        xlab = "Variable Class",
+        ylab = "Fréquence", col= "tan1", border="tan1")
+```
+
+<p style="text-align:justify";>
+La répartition des niveaux 0 et 1 dans la variable **_Class_** est très **déséquilibrée**. En effet, la variable de réponse Class contient 284 31 clients sains contre 492 clients en défaut. Quelles sont les conséquences de cette **disparité** ?
+</p>
+
+<p style="color: #7869b3;font-size:2em;text-align:left;text-decoration : underline;">
+**Le rééchantillonnage**
+</p>
+
+<p style="text-align:justify";>
+Nous savons que les algorithmes de **Machine Learning** sont conçus pour minimiser les erreurs. Étant donné que la probabilité que des instances appartenant à la classe majoritaire soient très élevées dans un ensemble de données déséquilibré, les algorithmes sont beaucoup plus susceptibles de classer les nouvelles observations dans la classe majoritaire. Nos résultats et nos interprétations seront alors **biaisés**.
+</p>
+
+<p style="text-align=justify";
+font-size:8px>
+**Comment y remédier ?**
+</p>
+
+<p style="text-align:justify";>
+Il existe plusieurs approches pour faire face à une base de données déséquilibrée. On peut agir directement sur l'algorithme utilisée pour la modélisation. Dans cette approche, le but est d'augmenter la **performance prédictive** de la classe minoritaire. Les travaux de  [Drummond & Holte](https://pdfs.semanticscholar.org/144b/bbafe2f0876c23295019b6e380c9fe4feda3.pdf) (2003) vous apporterons plus de précisions.
+</p>
+
+<p style="text-align:justify";>
+L'approche que nous allons utiliser pour réequilibrer nos données n'agit pas sur l'algorithme mais directement sur les données. Pour cela, nous utilisons une stratégie d'échantillonnage, nommée **over-sampling**. Cette stratégie consiste à rajouter des données dans la classe minoritaire. En d'autres termes, nous voulons que le nombre de transactions frauduleuses augmente, ce qui va permettre de rééquilibrer la fréquence des differents types de transactions dans la variable **_Class_**.  
+</p>
+<p style="text-align:justify";>
+Sous R, **SMOTE** est l'algorithme d'over-sampling le plus connu. Son fonctionnement est très simple : il parcourt toutes les observations de la classe minoritaire, cherche ses k plus proches voisins, puis **synthétise** aléatoirement de nouvelles données entre ces deux points. 
+</p>
+
+<p style="text-align:justify";>
+Après l'utilisation de cette fonction, on se retrouve avec **3444** transactions frauduleuses (au lieu de 492) et **7380** transactions non frauduleuses (au lieu de 284 315).
+Grâce au **rééchantillonage**, on peut donc dire que notre jeu de données à trouvé un certain **équilibre**.  De plus, cette stratégie de rééchantillonnage nous à permis de baisser fortement le nombre d'observations. En effet,  on remarque que le nombre d'observations total à fortement  baissé. Nous avons **10 824** observations, au lieu de 284 807. Nous pouvons maintenant procéder au rééchantillonnage. On choisit de distrbuer **70%** des obervations dans l'échantillon d'apprentissage et donc **30%** dans l'échantillon test. Au final, les 10 824 observations sont réparties de la sorte: 7 576 dans l'échantillon d'apprentissage et 3 248 dans l'échantillon test.
+</p>
+
+<p style="text-align:justify";>
+Voici la **répartition** des transactions dites saines et frauduleuses dans chacun de ces échantillons :
+</p>
+
+```{r, include=FALSE, echo=FALSE, warning=FALSE}
+table_bis<-mutate(table,Class=ifelse(Class=="0","sain","defaut"))
+Class=as.data.frame(as.factor(table_bis$Class))
+table_bis<-replace(table_bis,31,Class)
+newtable <- SMOTE(Class ~ ., table_bis, perc.over =600 ,perc.under =250)
+set.seed(123)
+obs<-1:nrow(newtable)
+long_obs<-length(obs)
+ech<-sample(obs,0.7*long_obs,replace=FALSE)
+train<-newtable[ech,] 
+test<-newtable[-ech,]  
+```
+
+```{r, include=TRUE, echo=FALSE, warning=FALSE, fig.align="center", fig.height=5}
+par(mfrow = c(1,2))
+barplot((table(train$Class)),ylim=c(0,6000),main = "Échantillon d'apprentissage",
+        xlab = "Variable Class",
+        ylab = "Fréquence", col= "tan1", border="tan1")
+
+barplot((table(test$Class)),ylim=c(0,6000),main = "Échantillon test",
+        xlab = "Variable Class",
+        ylab = "Fréquence", col= "tan1", border="tan1")
+
+```
+
+<p style="color: #7869b3;font-size:2em;text-align:left;text-decoration : underline;">
+**_Application du SVM sur la base de données révisée_**
+</p>
+
+<p style="text-align:justify";>
+La performance d'un SVM sur une base de données dépend de certains paramètres comme le coût de pénalisation et le type de kernel choisis. Mais en quoi ces differents facteurs peuvent-ils influencer la classification des transactions ? Intéressons-nous tout d'abord aux différents types de kernels et rappelons rapidement pourquoi il est primordial dans notre cas d'utiliser ce qu'on appelle le **_kernel trick_**.
+</p>
+
+<p style="text-align:justify";>
+En théorie, le kernel trick est utilisé lorsque l'on veut remédier au **problème d'absence de séparateur linéaire**. L'idée du kernel trick va donc nous permettre de reconsidérer le problème dans un espace de plus grande dimension, dans lequel une séparation linéaire est possible. Il existe des kernels usuels différents : 
+</p>
+<p style="text-align:justify";>
+* Le **noyau linéaire** défini par : 
+</p>
+<p style="font-size:24px";>
+$$K(x_i,x_i)=\langle x_i,x_j \rangle$$
+</p>
+<p style="text-align:justify";>
+* Le **noyau polynomial** représente, dans l'échantillon d'apprentissage, la similarité des vecteurs dans un espace de degré polynomial plus grand que celui des variables d'origine. Un noyau polynomial est définit par : 
+</p>
+<p style="font-size:24px";>
+$$K(x_i,x_j)=(c+\langle x_i,x_j \rangle)^p$$
+</p>
+<p style="text-align:justify";>
+où 
+</p>
+</p>
+<p style="font-size:24px";>
+$$c~ et ~p$$ 
+</p>
+<p style="text-align:justify";>
+sont des hyperparamètres.
+</p>
+<p style="text-align:justify";>
+*	Le **noyau Gaussien** qu'on appelle aussi le noyau "Radial Basis Function", qui est utilisé lorsqu'il n'y a pas de connaissance préalable des données. Il est définit par : 
+</p>
+<p style="font-size:24px";>
+$$K(x_i,x_j)=\exp \bigg(-\frac{\lvert\lvert x_i-x_j \rvert\rvert^2}{2\sigma^2}\biggr)$$ 
+</p>
+<p style="text-align:justify";>
+où 
+</p>
+<p style="font-size:24px";>
+$$\sigma$$
+</p>
+<p style="text-align:justify";>
+est un hyperparamètre et où 
+</p>
+<p style="font-size:24px";>
+$$\lvert \lvert x_i,x_j \lvert\vert^2$$ 
+</p>
+<p style="text-align:justify";>
+est reconnu comme la distance euclidienne au carré entre deux vecteurs.
+</p>
+<p style="text-align:justify";>
+* Le **noyau sigmoide** est définit par : 
+</p>
+<p style="font-size:24px";>
+$$K(x_i,x_j)=tanh(\theta_1 \langle x_i,x_j\rangle+\theta_2)$$ 
+</p>
+<p style="text-align:justify";>
+où 
+</p>
+<p style="font-size:24px";>
+$$\theta_1~ et ~\theta_2$$
+</p>
+<p style="text-align:justify";>
+sont des hyperparamètres et où tanh (.) désigne la fonction tangente hyperbolique.
+</p>
+
+<p style="text-align:justify";>
+On s'intéresse maintenant au **paramètre de pénalisation** qu'on note C. Dans la pratique, les performances du SVM sont très sensibles au choix de ce paramètre. Le coût de pénalisation joue le rôle d’une constante de régularisation et lcette dernière est d’autant plus forte que C est proche de 0. Le coût de pénalisation contrôle l'arbitrage entre la dimension de la marge et le taux d'erreur donc : 
+</p>
+<p style="text-align:justify";>
+* Si **C est petit**, les erreurs de classification sont moins pénalisées et l'accent est mis sur la maximisation de la marge. Dans ce cas, il y a un risque de **sous-apprentissage** (mauvais taux de classification sur l'échantillon d'apprentissage).
+</p>
+<p style="text-align:justify";>
+* Si **C est grand**, l'accent est mis sur l'absence de mauvaise classification au prix d'une marge plus faible. Dans ce cas il y aura alors un risque de **sur-apprentissage** (overfitting).
+</p>
+
+<p style="text-align:justify";>
+On comprend que l'objectif est de déterminer la valeur du paramètre de pénalisation C qui minimise la probabilité d'erreur de classification mesurée sur l'échantillon test. Pour pouvoir trouver nos paramètres optimaux et notre kernel optimal, nous utilisons la fonction **_TUNE_** qui nous permet d'obtenir le taux d'erreur de classification pour chaque paramètre de pénalisation, chaque gamma et kernel différent, valeurs que l'on a choisi d'assigner à cette fonction. De plus, la méthode utilisée dans notre cas est la **validation croisée « k-fold »**. Il s’agit de découper nos données en k parties égales. Chacune de ces dernières seront, tour à tour, utilisées comme échantillon test. Le reste, l’union des k-1 autres parties, est utilisé comme échantillon d’apprentissage. Cette validation croisée est donc une procédure utilisée pour éviter le sur-ajustement et estimer la compétence du modèle sur de nouvelles données.
+</p>
+
+<p style="text-align:justify";>
+Pour notre modèle, c'est le kernel **Radial Basis Function** qui est sélectionné. Voici un graphique qui montre le **taux d'exactitude** pour chaque combinaison du paramètre gamma et le coût de pénalisation.
+</p>
+
+
+
