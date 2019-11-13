@@ -16,6 +16,7 @@ library(MASS)
 library(randomForest)
 
 
+
 #Importation des données
 table<-read.csv("C:/Users/Amancy/Documents/GitHub/SVM/creditcard.csv")
 attach(table)
@@ -188,18 +189,6 @@ shinyServer(function(input, output) {
     
   })
   
-  output$pr_svm <- renderPlot({
-    
-    set.seed(123)
-    pred <- predict(svm_(),test[,-31], decision.values = TRUE)
-    score1_svm= pred[test$Class=="défaut"]
-    score0_svm = pred[test$Class=="sain"]
-    pr_svm = pr.curve(score0_svm,score1_svm, curve=T)
-    par(bg="snow2")
-    plot(pr_svm, col="mediumvioletred", lwd=3, main="Courbe PR")
-    text(0.5,0.5,paste("AUC = ",format(pr_svm$auc.integral, digits=5, scientific=FALSE)))
-    
-  })
   
   output$compROC <- renderPlot ({
     
@@ -219,11 +208,50 @@ shinyServer(function(input, output) {
     plot(pr_svm,col="#3729FC",main="Comparaison des courbes PR", lwd=2, xlim=c(0,1), ylim=c(0,1), xlab="Recall", ylab="Précision", auc.main=FALSE)
     plot(pr_rf,col="#4FBC3F",add=TRUE,lwd=2, xlim=c(1,0), ylim=c(0,1), xlab="Recall", ylab="Précision", auc.main=FALSE)
     plot(pr_lm,col="#BC3131",add=TRUE,lwd=2, xlim=c(1,0), ylim=c(0,1), xlab="Recall", ylab="Précision", auc.main=FALSE)
-    legend("bottomright",legend=c("SVM : 0.979", "RandomForest : 0.977","Logistic : 0.994"),lty=c(1,1,1),
+    legend("bottomright",legend=c("SVM", "RandomForest","Logistic"),lty=c(1,1,1),
            lwd=c(1,1,1),col=c('#3729FC','#4FBC3F','#BC3131'), cex=1.2,
            title="Modèles", text.font=4, bg='#FCD7FB')
     
   },execOnResize=TRUE)
+  
+  output$plot <-  renderRglwidget({
+    
+    
+    gamma<-as.data.frame(rep(c(0.01,0.125,0.25,0.375,0.5,0.625,0.75,0.875,1),10))
+    names(gamma)='gamma'
+    cost<-as.data.frame(rep(c(50,100,150,200,250,300,350,400,450,500),each=9))
+    names(cost)='cost' 
+    
+    error<- as.data.frame(rep(c(0.01108894,0.01161734,0.01227767,0.01148524,0.01135331,
+                                0.01082509, 0.01122139,  0.01188154,0.01174962,0.01161769),each=9)) 
+    names(error)='error'
+    
+    
+    
+    resultat_bis<-bind_cols(gamma,cost) %>% 
+      bind_cols(error)
+    
+    graph_tune<-ggplot(resultat_bis) +
+      geom_point(aes(x=cost,y=gamma,color=1-error)) +
+      scale_x_continuous(limits=c(50,500)) +
+      scale_y_continuous(limits=c(0,1)) +
+      scale_colour_gradientn(colours=c('gold','coral1','violetred4'), limits=c(0.987,0.99)) +
+      theme(
+        # Modifier la couleur de fond de la l?gende
+        legend.background = element_rect(fill = "grey98"),
+        # Modifier la taille et la largeur des signes de la légende
+        legend.key.size = unit(1, "cm"),
+        legend.key.width = unit(1, "cm"))+
+      theme(panel.background = element_rect(fill='wheat', colour='white'), axis.title.x = element_text(colour = "deeppink4", size=rel(1)),
+            axis.title.y = element_text(colour = "deeppink4",size=rel(1)),
+            plot.background = element_rect(fill="grey98"))
+    
+    
+    
+    plot_gg(graph_tune, height=3, width=3.5, multicore=TRUE, pointcontract  = 0.7, soliddepth=-200)
+    rglwidget()
+    
+  })
 
   
 })

@@ -58,6 +58,8 @@ newtable$Class<-relevel(newtable$Class,"sain")
 newtable$Class=factor(newtable$Class)
 set.seed(123)
 fit_100<-randomForest(Class~.,data=train, ntree=100, na.action=na.omit)
+y=fit_100$predicted
+y2=train$Class
 ```
 
 <p style="text-align:justify";>
@@ -78,7 +80,7 @@ fit_100
 ```
 
 <p style="text-align:justify";>
-En dessous de la fonction **_randomForest_**, nous avons les informations sur le type d'arbre (ici, arbre de classification), le nombre d'arbre (100), le « Out Of Bag estimate of error rate » (l'erreur Out Of Bag) qui s'élève ici à 1.64% et enfin la matrice de confusion. L’erreur Out Of Bag est utilisée pour mesurer la performance des modèles d’agrégation. Il s’agit de l’erreur moyenne calculée, à chaque fois, sur les échantillons qui n’ont pas servis à calculer le modèle. Plus ce taux est faible, plus le modèle est juste.
+En dessous de la fonction **_randomForest_**, nous avons les informations sur le type d'arbre (ici, arbre de classification), le nombre d'arbre (100), le « Out Of Bag estimate of error rate » (l'erreur Out Of Bag) qui s'élève ici à **`r round(mean(y2!=y)*100,3)`%** et enfin la matrice de confusion. L’erreur Out Of Bag est utilisée pour mesurer la performance des modèles d’agrégation. Il s’agit de l’erreur moyenne calculée, à chaque fois, sur les échantillons qui n’ont pas servis à calculer le modèle. Plus ce taux est faible, plus le modèle est juste.
 </p>
 
 <p style="text-align:justify";>
@@ -113,13 +115,17 @@ Jettons maintenant un oeil sur la matrice de confusion :
 
 ```{r include=FALSE, echo=FALSE, warning=FALSE, message=FALSE}
 set.seed(123)
-prediction_rf<-predict(fit_100 ,test)
-mc_rf<-data.frame(table(prediction_rf, test$Class))
-names(mc_rf)=c('Predicted','Actual','Value')
+prediction_rf<-predict(fit_100,test)
+mc_rf<-table(prediction_rf, test$Class)
+sum(mc_rf)
+erreur_rf<-round((mc_rf[1,2]+mc_rf[2,1])/sum(mc_rf),3)
+exact_rf<-round((1-(erreur_rf/100))*100,3)
+mc_rf2<-as.data.frame(mc_rf)
+names(mc_rf2)=c('Predicted','Actual','Value')
 ```
 
 ```{r include=TRUE, echo=FALSE, fig.align="center", fig.height=5}
-ggplot(data = mc_rf,
+ggplot(data = mc_rf2,
        mapping = aes(x = Predicted,
                      y = Actual)) +
   geom_tile(aes(fill = Value)) +
@@ -137,28 +143,30 @@ ggplot(data = mc_rf,
 ```
 
 <p style="text-align:justify";>
-On trouve un taux d'erreur de classification de 1.69%, et donc un taux d'exactitude de 98.3%. Le taux d'erreur ici est plus faible que celui trouvé pour la régression logistique, mais un peu plus elevé que le taux d'erreur trouvé pour le SVM.
+On trouve un taux d'erreur de classification de **`r erreur_rf`%**, et donc un taux d'exactitude de **`r exact_rf`%**. Le taux d'erreur ici est plus faible que celui trouvé pour la régression logistique, mais un peu plus elevé que le taux d'erreur trouvé pour le SVM.
 </p>
 
 <p style="color: #7869b3;font-size:2em;text-align:left;text-decoration : underline;">
 **_Courbe ROC_**
 </p>
 
-```{r inculude=FALSE, echo=FALSE, message=FALSE, warning=FALSE}
+```{r include=FALSE, echo=FALSE, message=FALSE, warning=FALSE}
 set.seed(123)
 predictions <- as.data.frame(predict(fit_100, test, type = "prob"))
 ROC_rf<- roc(test$Class, predictions[,2])
 ROC_rf_auc <- auc(ROC_rf)
+rf_roc<-plot.roc(ROC_rf, col="mediumvioletred", lwd=3, xlab = "1 - Spécificité",ylab="Sensitivite", print.auc=TRUE)
+auc_rf_roc<-round(as.numeric(rf_roc$auc),3)
+auc_rf_pourcent<-round(auc_rf_roc*100,3)
 ```
 ```{r include=TRUE, echo=FALSE, message=FALSE, warning=FALSE, fig.align="center", fig.height=5}
 par(bg='snow2')
-rf_roc<-plot(ROC_rf, col = "mediumvioletred", lwd=3, xlim=c(1,0), ylim=c(0,1), xlab="1 - Spécificité",                ylab="Sensitivité")
-text(0.5,0.5,paste("AUC = ",format(ROC_rf_auc, digits=5, scientific=FALSE)))
-
+rf_roc<-plot.roc(ROC_rf, col="mediumvioletred", lwd=3, xlab = "1 - Spécificité",ylab="Sensitivite", print.auc=TRUE)
 ```
 
+
 <p style="text-align:justify";>
-On voit que notre AUC s'élève ici à 0.999.  Cela signifie donc que, face à deux individus, l'un frauduleux et l'autre étant sain, dans 99.9 % des cas, le modèle arrive à les distinguer.
+On voit que notre AUC s'élève ici à **`r auc_rf_roc`**.  Cela signifie donc que, face à deux individus, l'un frauduleux et l'autre étant sain, dans **`r auc_rf_pourcent`%** des cas, le modèle arrive à les distinguer.
 </p>
 
 <p style="color: #7869b3;font-size:2em;text-align:left;text-decoration : underline;">
@@ -171,6 +179,7 @@ On voit que notre AUC s'élève ici à 0.999.  Cela signifie donc que, face à d
     score1_rf=prediction_rf[test$Class=="defaut"]
     score0_rf= prediction_rf[test$Class=="sain"]
     pr_rf= pr.curve(score0_rf, score1_rf, curve = T)
+    auc_rf_pr<-round(as.numeric(pr_rf$auc.integral),3)
 ```
 ```{r include=TRUE, echo=FALSE, message=FALSE, warning=FALSE, fig.align="center", fig.height=5}
 par(bg='snow2')
@@ -179,7 +188,7 @@ rf_pr<-plot(pr_rf,  col="mediumvioletred", lwd=3, main="Courbe PR")
 ```
 
 <p style="text-align:justify";>
-Ici, nous obtenons une AUC de 0,97.
+Ici, nous obtenons une AUC de **`r auc_rf_pr`**.
 </p>
 
 

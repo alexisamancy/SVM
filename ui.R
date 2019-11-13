@@ -3,6 +3,7 @@ library(markdown)
 library(rmarkdown)
 library(knitr)
 
+
 fluidPage(
 
           titlePanel(
@@ -120,16 +121,7 @@ fluidPage(
                                                       font-family: Arial, Helvetica, sans-serif;
                                                       font-weight: 800;"),
                                                    
-                                                   plotOutput("roc_svm")),
-                                          
-                                          tabPanel(h6("Courbe Precision-Recall",
-                                                      style = "color: #d1454e;
-                                                      font-size:90%;
-                                                      text-align:center
-                                                      font-family: Arial, Helvetica, sans-serif;
-                                                      font-weight: 800;"),
-                                                   
-                                                   plotOutput("pr_svm"))
+                                                   plotOutput("roc_svm"))
                                           )
                                )
                      ),

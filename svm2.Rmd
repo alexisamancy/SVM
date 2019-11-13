@@ -15,6 +15,10 @@ library(rpart)
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+<p style="text-align:center";>
+![](C:/Users/Amancy/Documents/GitHub/SVM/images/plot3d.png){width=35cm}
+</p>
+
 <p style="text-align:justify";>
 Plus la barre est haute et tend vers la couleur violette, et plus le taux d'exactitude est elevé. On voit ici que le coût de pénalisation donnant le taux d'exactitude le plus élevé est **300**. Cependant, on ne distingue pas bien pour quel valeur de gamma notre taux d'exactitude est le plus élevé. Voici les détails de notre fonction **_TUNE_** : 
 </p>
@@ -55,6 +59,9 @@ svm.reg<-svm(Class~., data=train, gamma=0.01 ,cost=150)
 pred<-predict(svm.reg,test[,-31], decision.values = TRUE)  #on retire la colonne class de test
 mc<-as.data.frame(table(pred,test$Class))
 names(mc)=c('Predicted','Actual','Value')
+Value<-select(mc,"Value")
+erreur_svm<-round((sum(Value[1,],Value[4,])/sum(Value))*100,3)
+exact_svm<-round((1-(erreur_svm/100))*100,3)
 ```
 
 ```{r, include=TRUE, echo=FALSE, message=FALSE, warning=FALSE, fig.align="center", fig.height=5}
@@ -79,7 +86,7 @@ ggplot(data = mc,
 ```
 
 <p style="text-align:justify";>
-Nous avons un taux d'erreur de 1.4% et donc **98,6%** d'individus correctement classés.
+Nous avons un taux d'erreur de **`r erreur_svm`%** et donc **`r exact_svm`%** d'individus correctement classés.
 </p>
 
 <p style="color: #7869b3;font-size:20px;text-align:left;text-decoration : underline;">
@@ -92,15 +99,18 @@ La **courbe ROC** est représentée sur un graphique représentant les performan
 
 ```{r, include=FALSE, echo=FALSE, warning=FALSE, message=FALSE}
 dv_svm<-attributes(pred)$decision.values
+svm_roc <- plot.roc(as.numeric(test$Class), dv_svm,col="mediumvioletred", lwd=3, xlab = "1 - Spécificité",ylab="Sensitivite", print.auc=TRUE)
+auc_svm_roc=round(as.numeric(svm_roc$auc),3)
+auc_svm_pourcent<-round(auc_svm_roc*100,3)
 ```
 
 ```{r, include=TRUE, echo=FALSE, warning=FALSE, message=FALSE, fig.align="center", fig.height=5}
 par(bg="snow2")
-svm_roc <- plot.roc(as.numeric(test$Class), dv_svm,col="mediumvioletred", lwd=3, xlab = "1 - Spécificité",ylab="Sensitivite", print.auc=TRUE)
+svm_roc<- plot.roc(as.numeric(test$Class), dv_svm,col="mediumvioletred", lwd=3, xlab = "1 - Spécificité",ylab="Sensitivite", print.auc=TRUE)
 ```
 
 <p style="text-align:justify";>
-Plus l'AUC tend vers 1 et plus la performance du modèle augmente. On voit que notre statistique est de 0.997. Cela signifie donc que, face à deux individus, l'un faisant défaut et l'autre étant sain, dans 99.7% des cas, le test arrive à distinguer l'individu qui fait défaut de la personne saine.
+Plus l'AUC tend vers 1 et plus la performance du modèle augmente. On voit que notre statistique est de **`r auc_svm_roc`**. Cela signifie donc que, face à deux individus, l'un faisant défaut et l'autre étant sain, dans **`r auc_svm_pourcent`%** des cas, le test arrive à distinguer l'individu qui fait défaut de la personne saine.
 </p>
 
 <p style="color: #7869b3;font-size:20px;text-align:left;text-decoration : underline;">
@@ -116,12 +126,17 @@ De ce fait, la courbe precision-recall montre le compromis entre précision et r
     score1_svm=pred[test$Class=="defaut"]
     score0_svm= pred[test$Class=="sain"]
     pr_svm= pr.curve(score0_svm, score1_svm, curve = T)
+    auc_svm_pr<-round(as.numeric(pr_svm$auc.integral),3)
 ```
 
 ```{r, include=TRUE, echo=FALSE, warning=FALSE, message=FALSE, fig.align="center", fig.height=5}
 par(bg="snow2")
 svm_pr<-plot(pr_svm,  col="mediumvioletred", lwd=3, main="Courbe PR")
 ```
+<p style="text-align:justify";>
+Nous avons une aire sous la courbe de **`r auc_svm_pr`**.
+</p>
+
 <p>&nbsp; </p>
 
 <p style="color: #7869b3;font-size:2em;text-align:left;text-decoration : underline;">
