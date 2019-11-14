@@ -1,3 +1,9 @@
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(markdown)
+library(rmarkdown)
+```
+
 # Implémentation des SVM dans le cadre de détection de fraude sur des cartes de crédit. 
 
 <p style="text-align:justify";>
