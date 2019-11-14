@@ -1,4 +1,4 @@
-```{r setup, include=FALSE}
+```{r setup, include=FALSE, echo=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(markdown)
 library(rmarkdown)
