@@ -49,7 +49,7 @@ library(markdown)
 <p style="text-align:justify";>Développées véritablement dans les années 90 par Boser, Guyon et Vapnik à partir des considérations théoriques de ce dernier, les machines à vecteurs support (parfois traduis par « séparateurs à vastes marges ») est une technique de Machine Learning visant à solutionner des problématiques de classification et de régression. Dans notre cas précis, on s'intéresse à un problème de classification. L'objectif de notre SVM est alors de parfaitement prédire si une transaction sera frauduleuse, ou non. </p>
 
 
-**Mais comment fonctionnent-ils ?** 
+**Mais comment fonctionne-t-il ?** 
 
 
 <p style="text-align:justify";>Illustrons nos propos. Imaginons que les points bleus représentent les transactions non frauduleuses, et les points rouges les transactions dites frauduleuses.</p> 
