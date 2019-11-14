@@ -214,44 +214,5 @@ shinyServer(function(input, output) {
     
   },execOnResize=TRUE)
   
-  output$plot <-  renderRglwidget({
-    
-    
-    gamma<-as.data.frame(rep(c(0.01,0.125,0.25,0.375,0.5,0.625,0.75,0.875,1),10))
-    names(gamma)='gamma'
-    cost<-as.data.frame(rep(c(50,100,150,200,250,300,350,400,450,500),each=9))
-    names(cost)='cost' 
-    
-    error<- as.data.frame(rep(c(0.01108894,0.01161734,0.01227767,0.01148524,0.01135331,
-                                0.01082509, 0.01122139,  0.01188154,0.01174962,0.01161769),each=9)) 
-    names(error)='error'
-    
-    
-    
-    resultat_bis<-bind_cols(gamma,cost) %>% 
-      bind_cols(error)
-    
-    graph_tune<-ggplot(resultat_bis) +
-      geom_point(aes(x=cost,y=gamma,color=1-error)) +
-      scale_x_continuous(limits=c(50,500)) +
-      scale_y_continuous(limits=c(0,1)) +
-      scale_colour_gradientn(colours=c('gold','coral1','violetred4'), limits=c(0.987,0.99)) +
-      theme(
-        # Modifier la couleur de fond de la l?gende
-        legend.background = element_rect(fill = "grey98"),
-        # Modifier la taille et la largeur des signes de la légende
-        legend.key.size = unit(1, "cm"),
-        legend.key.width = unit(1, "cm"))+
-      theme(panel.background = element_rect(fill='wheat', colour='white'), axis.title.x = element_text(colour = "deeppink4", size=rel(1)),
-            axis.title.y = element_text(colour = "deeppink4",size=rel(1)),
-            plot.background = element_rect(fill="grey98"))
-    
-    
-    
-    plot_gg(graph_tune, height=3, width=3.5, multicore=TRUE, pointcontract  = 0.7, soliddepth=-200)
-    rglwidget()
-    
-  })
-
   
 })
