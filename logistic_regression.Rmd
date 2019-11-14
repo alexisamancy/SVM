@@ -43,7 +43,7 @@ knitr::opts_chunk$set(echo = TRUE)
 </p>
 
 <p style="text-align:justify";>
-La **régression logistique** est l’un des algorithmes d’apprentissage automatique les plus couramment utilisés en matière de classification **binaire** et lorsque nous appliquons un kernel de type linéaire à notre SVM, c’est deux dernières méthodes **se rapprochent**. En Statistiques, nous devons constamment faire face à un **trade-off** entre *pouvoir prédicitf* et *interprétabilité* des résultats. Le principal avantage de la régression logistique comparée au SVM est alors sa force d’interprétabilité. C’est ainsi qu’on décide de l’utiliser comme premier **benchmark**. Nous gardons ici le même rééchantillonnage que pour le SVM.
+La **régression logistique** est l’un des algorithmes d’apprentissage automatique les plus couramment utilisés en matière de classification **binaire** et lorsque nous appliquons un kernel de type linéaire à notre SVM, ces deux dernières méthodes **se rapprochent**. En Statistiques, nous devons constamment faire face à un **trade-off** entre *pouvoir prédicitf* et *interprétabilité* des résultats. Le principal avantage de la régression logistique comparée au SVM est alors sa force d’interprétabilité. C’est ainsi qu’on décide de l’utiliser comme premier **benchmark**. Nous gardons ici le même rééchantillonnage que pour le SVM.
 </p>
 
 <p style="color: #7869b3;font-size:2em;text-align:left;text-decoration : underline;">
@@ -51,12 +51,14 @@ La **régression logistique** est l’un des algorithmes d’apprentissage autom
 </p>
 
 <p style="text-align:justify";>
-Pour la sélection de nos variables, nous choisissons la sélection automatique **'forward'** avec la fonction **'stepAIC'**. Tout d'abord, avec la fonction glm, nous avons regrésser la variable Class sur les variables selectionnée grâce à la méthode de sélection forward. Rappel de la séléction forward : Au départ, notre modèle contient seulement la constante. La sélection forward va alors choisir de faire rentrer une variable dans un modèle. Pour faire ce choix, un test du Langrange Multiplier est fait. La variable choisit est alors celle dont la p-value est inférieure à un seuil que l'on fixe. Ce processus s'arrete lorsque ce seuil devient inferieur à la p-value. Toute variable qui entre dans le modèle ne peut en sortir.  On obtient alors le modèle suivant : 
+Pour la sélection de nos variables, nous choisissons la sélection automatique **'forward'** avec la fonction **'stepAIC'**. Tout d'abord, avec la fonction **_glm_**, nous avons régressé la variable Class sur les variables selectionnées grâce à la méthode de sélection forward. Rappel de la séléction forward : </p>
+
+<p style="text-align:justify";>
+Au départ, notre modèle contient seulement la constante. La sélection forward va alors choisir de faire rentrer une variable dans notre modèle. Pour faire ce choix, un test du Langrange Multiplier est fait. La variable choisi est alors celle dont la p-value est inférieure à un seuil que l'on fixe. Ce processus s'arrête lorsque ce seuil devient inférieur à la p-value. Toute variable qui entre dans le modèle ne peut en sortir.  On obtient alors le modèle suivant : 
 </p>
 
 ```{r include=FALSE, echo=FALSE, warning=FALSE, message=FALSE}
 table<-read.csv("C:/Users/Amancy/Documents/GitHub/SVM/creditcard.csv")
-attach(table)
 table_bis<-mutate(table,Class=ifelse(Class=="0","sain","defaut"))
 Class=as.data.frame(as.factor(table_bis$Class))
 table_bis<-replace(table_bis,31,Class)
@@ -69,6 +71,7 @@ train<-newtable[ech,]
 test<-newtable[-ech,] 
 newtable$Class<-relevel(newtable$Class,"sain")
 newtable$Class=factor(newtable$Class)
+
 set.seed(123)
 reg0<-glm(Class~1,data=train,family=binomial(logit))
 set.seed(123)
@@ -103,14 +106,14 @@ L'interprétation suivante va nous permettre de comprendre la déviance résidue
 </p>
 
 <p style="text-align:justify";>
-Ensuite dans la partie **_Coefficients_**, on retrouve l'ensemble de nos estimateurs, l'écart type, la z-value, qui représente ici le test de Fisher, et enfin la p-value de chaque variable. On peut voir ici la significativité de chaque variable grâce aux étoiles, qui précisent à quels seuil la variable est significative. Ici, on voit que plusieurs lignes ne comportent pas d'étoile, ce qui signifie que la variable concernée n'est pas significative.
+Ensuite dans la partie **_Coefficients_**, on retrouve l'ensemble de nos estimateurs, l'écart type, la z-value, qui représente ici le test de Fisher, et enfin la p-value de chaque variable. On peut voir ici la significativité de chaque variable grâce aux étoiles, qui précisent à quel seuil la variable est significative. Ici, on voit que plusieurs lignes ne comportent pas d'étoile, ce qui signifie que la variable concernée n'est pas significative.
 
 <p style="text-align:justify";>
 Une ligne précise la valeur de l'AIC : le critère d'information d'Akaike, qui permet de mesurer la qualité de notre modèle en comparaison avec d'autres modèles. Le modèle avec l'AIC le plus faible est alors choisi.
 </p>
 
 <p style="text-align:justify";>
-Enfin nous avons le nombre d'itérations de l'algorithme de Fisher qui est égale à 13. Cela signifie que l'algorithme de scoring de Fisher à eu besoin de **`r fisher`** itérations pour effectuer l'ajustement du modèle.
+Enfin nous avons le nombre d'itérations de l'algorithme de Fisher qui est égale à **`r fisher`**. Cela signifie que l'algorithme de scoring de Fisher à eu besoin de **`r fisher`** itérations pour effectuer l'ajustement du modèle.
 </p>
 
 <p style="color: #7869b3;font-size:2em;text-align:left;text-decoration : underline;">
@@ -151,7 +154,7 @@ ggplot(data = mc_log2,
 
 <p style="font-size:1em;
           text-align:justify">
-Comme pour le SVM, la matrice de confusion va nous fournir des informations sur les erreurs de classification de la régression logistique.  Nous avons ici un taux d'erreur de classification de **`r erreur_log`%** et donc **`r exact_log`%** d'individus correctement classés. Le taux d'exatitude des individus correctement classés ici est inferieur à celui trouvé pour le SVM, mais cette différence n'est pas flagrante.
+Comme pour le SVM, la matrice de confusion va nous fournir des informations sur les erreurs de classification de la régression logistique.  Nous avons ici un taux d'erreur de classification de **`r erreur_log`%** et donc **`r exact_log`%** de transactions correctement classées. Le taux d'exatitude des transactions correctement classées ici est inferieur à celui trouvé pour le SVM, mais cette différence n'est pas flagrante.
 </p>
 
 <p style="color: #7869b3;font-size:2em;text-align:left;text-decoration : underline;">
@@ -163,7 +166,7 @@ set.seed(123)
 p<-prediction(glm.probs,test$Class)
 auc <- performance(p, measure = "auc")
 auc <- auc@y.values[[1]]
-auc_log_roc<-round(as.numeric(auc),3)
+auc_log_roc<-round(as.numeric(1-auc),3)
 auc_log_pourcent<-round(auc_log_roc*100,3)
 
 ```
@@ -179,7 +182,7 @@ plot(roc(test$Class, glm.probs, direction="<"),
 
 <p style="font-size:1em;
           text-align:justify">
-On rappelle que plus l'AUC tend vers 1 et plus la performance du modèle augmente. On voit que notre statistique est de **`r auc_log_roc`**. Cela signifie donc que, face à deux individus, l'un faisant défaut et l'autre étant sain, dans **`r auc_log_pourcent`%** des cas, le modèle arrive à distinguer la personne frauduleuse de la personne saine.
+On rappelle que plus l'AUC tend vers 1 et plus la performance du modèle augmente. On voit que notre statistique est de **`r auc_log_roc`**. Cela signifie donc que, face à deux transactions, l'une étant frauduleuse et l'autre étant saine, dans **`r auc_log_pourcent`%** des cas, le modèle arrive à distinguer la transaction frauduleuse de la transaction saine.
 </p>
 
 <p style="color: #7869b3;font-size:2em;text-align:left;text-decoration : underline;">
