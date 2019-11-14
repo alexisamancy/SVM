@@ -43,7 +43,19 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ```{r, include=FALSE, echo=FALSE, warning=FALSE, message=FALSE}
 table<-read.csv("C:/Users/Amancy/Documents/GitHub/SVM/creditcard.csv")
-attach(table)
+table_bis<-mutate(table,Class=ifelse(Class=="0","sain","defaut"))
+Class=as.data.frame(as.factor(table_bis$Class))
+table_bis<-replace(table_bis,31,Class)
+newtable <- SMOTE(Class ~ ., table_bis, perc.over =600 ,perc.under =250 )
+set.seed(123)  
+obs<-1:nrow(newtable)
+long_obs<-length(obs)
+ech<-sample(obs,0.7*long_obs,replace=FALSE)  
+train<-newtable[ech,]
+test<-newtable[-ech,] 
+newtable$Class<-relevel(newtable$Class,"sain")
+newtable$Class=factor(newtable$Class)
+table<-read.csv("C:/Users/Amancy/Documents/GitHub/SVM/creditcard.csv")
 table_bis<-mutate(table,Class=ifelse(Class=="0","sain","defaut"))
 Class=as.data.frame(as.factor(table_bis$Class))
 table_bis<-replace(table_bis,31,Class)
@@ -63,15 +75,15 @@ y2=train$Class
 ```
 
 <p style="text-align:justify";>
-Les **forêts aléatoires** sont un ensemble d'arbres décisionnels. Ces arbres se distinguent les uns des autres par le sous-échantillon de données sur lequel ils sont entraînés. Ces sous-échantillons sont tirés au hasard (d'où le terme "aléatoire") dans le jeu de données initial. L'objectif du Random Forest est de réduire la variance des prévisions d’un arbre de décision seul, améliorant ainsi leurs performances. Pour cela, il combine de nombreux arbres de décisions dans une approche de type bagging. La technique du Random Forest permet de fournir une précision plus fine des prédictions, mais permet aussi de diminuer les chance « d’overfitting » (cas où le modèle est parfaitement adapté aux données, mais se généralise très mal).
+Les **forêts aléatoires** sont un ensemble d'arbres décisionnels. Ces arbres se distinguent les uns des autres par le sous-échantillon de données sur lequel ils sont entraînés. Ces sous-échantillons sont tirés au hasard (d'où le terme "aléatoire") dans le jeu de données initial. L'objectif du Random Forest est de réduire la variance des prévisions d’un arbre de décision seul, améliorant ainsi leurs performances. Pour cela, il combine de nombreux arbres de décisions dans une approche de type bagging. La technique du Random Forest permet de fournir une précision plus fine des prédictions, mais permet aussi de diminuer les chance « d’overfitting » (cas où le modèle est parfaitement adapté aux données, mais ne se généralise que très mal).
 </p>
 
 <p style="text-align:justify";>
-Avant d'appliquer le random Forest à nos données, nous avons **paramétré** notre modèle. En effet, nous avons choisi de contrôler deux paramètres principaux : le nombre d'arbre (ntree) et le nombre de variables testées à chaque split (mtry). Augmenter le nombre d'arbres pourrait régler le biais d'échantillonnage provoquer par la « part d'aléatoire » du Random Forest. Dans notre cas le « ntree » optimal est 100. Le second paramètre principal est le « mtry », la valeur par défaut étant la racine carrée du nombre de variables. Dan notre cas, le « mtry » optimal s'élève à 5.
+Avant d'appliquer le Random Forest à nos données, nous avons **paramétré** notre modèle. En effet, nous avons choisi de contrôler deux paramètres principaux : le nombre d'arbre (ntree) et le nombre de variables testées à chaque split (mtry). Augmenter le nombre d'arbres pourrait régler le biais d'échantillonnage provoqué par la « part d'aléatoire » du Random Forest. Dans notre cas le « ntree » optimal est 100. Le second paramètre principal est le « mtry », la valeur par défaut étant la racine carrée du nombre de variables. Dan notre cas, le « mtry » optimal s'élève à 5.
 </p>
 
 <p style="text-align:justify";>
-Nous appliquons maintenant le random forest avec les paramètres optimaux, voici les résultats : 
+Nous appliquons maintenant le Random Forest avec les paramètres optimaux, voici les résultats : 
 </p>
 
 ```{r, include=TRUE, echo=FALSE, warning=FALSE, message=FALSE, fig.align="center", fig.height=5}
@@ -80,11 +92,11 @@ fit_100
 ```
 
 <p style="text-align:justify";>
-En dessous de la fonction **_randomForest_**, nous avons les informations sur le type d'arbre (ici, arbre de classification), le nombre d'arbre (100), le « Out Of Bag estimate of error rate » (l'erreur Out Of Bag) qui s'élève ici à **`r round(mean(y2!=y)*100,3)`%** et enfin la matrice de confusion. L’erreur Out Of Bag est utilisée pour mesurer la performance des modèles d’agrégation. Il s’agit de l’erreur moyenne calculée, à chaque fois, sur les échantillons qui n’ont pas servis à calculer le modèle. Plus ce taux est faible, plus le modèle est juste.
+En dessous de la fonction **_randomForest_**, nous avons les informations sur le type d'arbre (ici, arbre de classification), le nombre d'arbre (100), le « Out Of Bag estimate of error rate » (l'erreur Out Of Bag) qui s'élève ici à **`r round(mean(y2!=y)*100,3)`%** et enfin la matrice de confusion. L’erreur Out Of Bag est utilisée pour mesurer la performance des modèles d’agrégation. Il s’agit de l’erreur moyenne calculée, à chaque fois, sur les échantillons qui n’ont pas servi à calculer le modèle. Plus ce taux est faible, plus le modèle est juste.
 </p>
 
 <p style="text-align:justify";>
-Nous pouvons d'ailleurs accéder au nombre de fois ou un individu a été laissé « out of bag » grâce à cet histogramme :
+Nous pouvons d'ailleurs accéder au nombre de fois où une transaction a été laissée « out of bag » grâce à cet histogramme :
 </p>
 
 
@@ -166,7 +178,7 @@ rf_roc<-plot.roc(ROC_rf, col="mediumvioletred", lwd=3, xlab = "1 - Spécificité
 
 
 <p style="text-align:justify";>
-On voit que notre AUC s'élève ici à **`r auc_rf_roc`**.  Cela signifie donc que, face à deux individus, l'un frauduleux et l'autre étant sain, dans **`r auc_rf_pourcent`%** des cas, le modèle arrive à les distinguer.
+On voit que notre AUC s'élève ici à **`r auc_rf_roc`**.  Cela signifie donc que, face à deux transactions, l'une frauduleuse et l'autre saine, dans **`r auc_rf_pourcent`%** des cas, le modèle arrive à les distinguer.
 </p>
 
 <p style="color: #7869b3;font-size:2em;text-align:left;text-decoration : underline;">
