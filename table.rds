@@ -1,0 +1,2 @@
+table<-read.csv("C:/Users/Amancy/Documents/GitHub/SVM/creditcard.csv")
+saveRDS(table, file = "table.rds")
