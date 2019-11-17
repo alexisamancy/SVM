@@ -31,13 +31,13 @@ fluidPage(
                                                border: 2px solid #752727; 
                                                display: inline-block;")),
                      
-                     includeHTML("Intro.html")),
+                     includeHTML("www/Intro.html")),
           
             
             tabPanel(title= span(tagList(icon("user-secret"), "Notre analyse")),
                      
-                     includeHTML("svm.html"),
-                     includeHTML("svm2.html")),
+                     includeHTML("www/svm.html"),
+                     includeHTML("www/svm2.html")),
             
             tabPanel(
 
@@ -137,7 +137,7 @@ fluidPage(
                                          font-family: Arial, Helvetica, sans-serif;
                                          font-weight: 800;"),
                                          
-                                         includeHTML("logistic_regression.html")),
+                                         includeHTML("www/logistic_regression.html")),
                                 
                                 tabPanel(h6("RandomForest",
                                             style = "color: #d1454e;
@@ -146,7 +146,7 @@ fluidPage(
                                             font-family: Arial, Helvetica, sans-serif;
                                             font-weight: 800;"),
                                          
-                                         includeHTML("RandomForest.html")),
+                                         includeHTML("www/RandomForest.html")),
                                 
                                 tabPanel(h6("Comparaison aux SVM",
                                             style = "color: #d1454e;
