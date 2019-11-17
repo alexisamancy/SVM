@@ -58,19 +58,12 @@ Au départ, notre modèle contient seulement la constante. La sélection forward
 </p>
 
 ```{r include=FALSE, echo=FALSE, warning=FALSE, message=FALSE}
-table<-read.csv("C:/Users/Amancy/Documents/GitHub/SVM/creditcard.csv")
-table_bis<-mutate(table,Class=ifelse(Class=="0","sain","defaut"))
-Class=as.data.frame(as.factor(table_bis$Class))
-table_bis<-replace(table_bis,31,Class)
-newtable <- SMOTE(Class ~ ., table_bis, perc.over =600 ,perc.under =250 )
-set.seed(123)  
-obs<-1:nrow(newtable)
-long_obs<-length(obs)
-ech<-sample(obs,0.7*long_obs,replace=FALSE)  
-train<-newtable[ech,]
-test<-newtable[-ech,] 
-newtable$Class<-relevel(newtable$Class,"sain")
-newtable$Class=factor(newtable$Class)
+train <- read.csv("C:/Users/Amancy/Documents/GitHub/SVM/creditcard_train.csv")
+test  <- read.csv("C:/Users/Amancy/Documents/GitHub/SVM/creditcard_test.csv")
+train$Class <- relevel(train$Class,"sain")
+train$Class <- factor(train$Class)
+test$Class<-relevel(test$Class,"sain")
+test$Class=factor(test$Class)
 
 set.seed(123)
 reg0<-glm(Class~1,data=train,family=binomial(logit))
@@ -193,7 +186,7 @@ On rappelle que plus l'AUC tend vers 1 et plus la performance du modèle augment
 set.seed(123)
 score1_lm= glm.probs[test$Class=="defaut"]
 score0_lm= glm.probs[test$Class=="sain"]
-pr_lm= pr.curve(score0_lm, score1_lm, curve = T)
+pr_lm= pr.curve(score1_lm, score0_lm, curve = T)
 auc_log_pr<-round(as.numeric(pr_lm$auc.integral),3)
 ```
 ```{r include=TRUE, echo=FALSE, message=FALSE, warning=FALSE, fig.align="center", fig.height=5}

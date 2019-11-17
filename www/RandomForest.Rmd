@@ -42,32 +42,12 @@ knitr::opts_chunk$set(echo = TRUE)
 </p>
 
 ```{r, include=FALSE, echo=FALSE, warning=FALSE, message=FALSE}
-table<-read.csv("C:/Users/Amancy/Documents/GitHub/SVM/creditcard.csv")
-table_bis<-mutate(table,Class=ifelse(Class=="0","sain","defaut"))
-Class=as.data.frame(as.factor(table_bis$Class))
-table_bis<-replace(table_bis,31,Class)
-newtable <- SMOTE(Class ~ ., table_bis, perc.over =600 ,perc.under =250 )
-set.seed(123)  
-obs<-1:nrow(newtable)
-long_obs<-length(obs)
-ech<-sample(obs,0.7*long_obs,replace=FALSE)  
-train<-newtable[ech,]
-test<-newtable[-ech,] 
-newtable$Class<-relevel(newtable$Class,"sain")
-newtable$Class=factor(newtable$Class)
-table<-read.csv("C:/Users/Amancy/Documents/GitHub/SVM/creditcard.csv")
-table_bis<-mutate(table,Class=ifelse(Class=="0","sain","defaut"))
-Class=as.data.frame(as.factor(table_bis$Class))
-table_bis<-replace(table_bis,31,Class)
-newtable <- SMOTE(Class ~ ., table_bis, perc.over =600 ,perc.under =250 )
-set.seed(123)  
-obs<-1:nrow(newtable)
-long_obs<-length(obs)
-ech<-sample(obs,0.7*long_obs,replace=FALSE)  
-train<-newtable[ech,]
-test<-newtable[-ech,] 
-newtable$Class<-relevel(newtable$Class,"sain")
-newtable$Class=factor(newtable$Class)
+train <- read.csv("C:/Users/Amancy/Documents/GitHub/SVM/creditcard_train.csv")
+test  <- read.csv("C:/Users/Amancy/Documents/GitHub/SVM/creditcard_test.csv")
+train$Class <- relevel(train$Class,"sain")
+train$Class <- factor(train$Class)
+test$Class<-relevel(test$Class,"sain")
+test$Class=factor(test$Class)
 set.seed(123)
 fit_100<-randomForest(Class~.,data=train, ntree=100, na.action=na.omit)
 y=fit_100$predicted
@@ -190,7 +170,7 @@ On voit que notre AUC s'élève ici à **`r auc_rf_roc`**.  Cela signifie donc q
     prediction_rf<-predict(fit_100 ,test)
     score1_rf=prediction_rf[test$Class=="defaut"]
     score0_rf= prediction_rf[test$Class=="sain"]
-    pr_rf= pr.curve(score0_rf, score1_rf, curve = T)
+    pr_rf= pr.curve(score1_rf, score0_rf, curve = T)
     auc_rf_pr<-round(as.numeric(pr_rf$auc.integral),3)
 ```
 ```{r include=TRUE, echo=FALSE, message=FALSE, warning=FALSE, fig.align="center", fig.height=5}

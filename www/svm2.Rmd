@@ -44,19 +44,12 @@ On peut maintenant faire de prédictions sur l'échantillon test. L'objectif ét
 </p>
 
 ```{r, include=FALSE, echo=FALSE, message=FALSE, warning=FALSE}
-table<-read.csv("C:/Users/Amancy/Documents/GitHub/SVM/creditcard.csv")
-table_bis<-mutate(table,Class=ifelse(Class=="0","sain","defaut"))
-Class=as.data.frame(as.factor(table_bis$Class))
-table_bis<-replace(table_bis,31,Class)
-newtable <- SMOTE(Class ~ ., table_bis, perc.over =600 ,perc.under =250 )
-set.seed(123)  
-obs<-1:nrow(newtable)
-long_obs<-length(obs)
-ech<-sample(obs,0.7*long_obs,replace=FALSE)  
-train<-newtable[ech,]
-test<-newtable[-ech,] 
-newtable$Class<-relevel(newtable$Class,"sain")
-newtable$Class=factor(newtable$Class)
+train <- read.csv("C:/Users/Amancy/Documents/GitHub/SVM/creditcard_train.csv")
+test  <- read.csv("C:/Users/Amancy/Documents/GitHub/SVM/creditcard_test.csv")
+train$Class <- relevel(train$Class,"sain")
+train$Class <- factor(train$Class)
+test$Class<-relevel(test$Class,"sain")
+test$Class=factor(test$Class)
 svm.reg<-svm(Class~., data=train, gamma=0.01 ,cost=150) 
 pred<-predict(svm.reg,test[,-31], decision.values = TRUE)  #on retire la colonne class de test
 mc<-as.data.frame(table(pred,test$Class))
@@ -127,7 +120,7 @@ Si la zone sous la courbe est grande, cela signigfie que ces deux mesures sont �
 ```{r, include=FALSE, echo=FALSE, warning=FALSE, message=FALSE}
     score1_svm=pred[test$Class=="defaut"]
     score0_svm= pred[test$Class=="sain"]
-    pr_svm= pr.curve(score0_svm, score1_svm, curve = T)
+    pr_svm= pr.curve(score1_svm, score0_svm, curve = T)
     auc_svm_pr<-round(as.numeric(pr_svm$auc.integral),3)
 ```
 

@@ -56,16 +56,9 @@ Comme la majorité de nos prédicteurs sont anonymisées, il serait judicieux de
 Pour cela, on réalise une **matrice de corrélation**: 
 </p>
 
-```{r, include=FALSE, echo=FALSE, warning=FALSE}
-table<-read.csv("C:/Users/Amancy/Documents/GitHub/SVM/creditcard.csv")
-mcor<-cor(table)
-symnum(mcor,abbr.colnames = FALSE)
-```
-```{r, include=TRUE, echo=FALSE, message=FALSE, warning=FALSE, fig.align="center", fig.height=5}
-corrplot(mcor, method = "color", type = "upper",
-         sig.level = c(.001, .01, .05), pch.cex = .9,
-         insig = "label_sig", pch.col = "white", order = "AOE")
-```
+<p style="text-align:center";>
+![](C:/Users/Amancy/Documents/GitHub/SVM/images/corrplot.jpg)
+</p>
 
 <p style="text-align:justify";>
 Nous remarquons que certaines corrélations sont plus fortes que d'autres. Par exemple, la corrélation entre les variables Amount et V20 est de 0.3, tout comme la corrélation entre Amount et V7. On remarque aussi que les variables Amount et V2 sont négativement corrélées à hauteur de 0.5. Cependant, il n'y a **rien d'alarmant**. Pour éviter de perdre de l'information, nous choisissons donc de garder l'ensemble de nos variables dans le modèle.
@@ -77,11 +70,9 @@ Nous remarquons que certaines corrélations sont plus fortes que d'autres. Par e
 On veut maintenant vérifier si notre base de données est **déséquilibrée**. En d'autres termes, la répartition entre les transactions frauduleuses et les transactions non frauduleuses est-elle relativement **similaire** ?
 </p>
 
-```{r, include=TRUE, echo=FALSE, warning=FALSE, fig.align="center", fig.height=5}
-barplot((table(table$Class)),ylim=c(0,300000),main = "Fréquence de 0 et de 1 dans la base de données",
-        xlab = "Variable Class",
-        ylab = "Fréquence", col= "tan1", border="tan1")
-```
+<p style="text-align:center";>
+![](C:/Users/Amancy/Documents/GitHub/SVM/images/barplot1.jpg)
+</p>
 
 <p style="text-align:justify";>
 La répartition des niveaux 0 et 1 dans la variable **_Class_** est très **déséquilibrée**. En effet, la variable de réponse Class contient 284 315 clients sains contre 492 clients frauduleux. Quelles sont les conséquences de cette **disparité** ?
@@ -121,16 +112,10 @@ Voici la **répartition** des transactions dites saines et frauduleuses dans cha
 </p>
 
 ```{r, include=FALSE, echo=FALSE, warning=FALSE}
-table_bis<-mutate(table,Class=ifelse(Class=="0","sain","defaut"))
-Class=as.data.frame(as.factor(table_bis$Class))
-table_bis<-replace(table_bis,31,Class)
-newtable <- SMOTE(Class ~ ., table_bis, perc.over =600 ,perc.under =250)
-set.seed(123)
-obs<-1:nrow(newtable)
-long_obs<-length(obs)
-ech<-sample(obs,0.7*long_obs,replace=FALSE)
-train<-newtable[ech,] 
-test<-newtable[-ech,]  
+train <- read.csv("C:/Users/Amancy/Documents/GitHub/SVM/creditcard_train.csv")
+test  <- read.csv("C:/Users/Amancy/Documents/GitHub/SVM/creditcard_test.csv")
+train$Class <- factor(train$Class)
+test$Class=factor(test$Class) 
 ```
 
 ```{r, include=TRUE, echo=FALSE, warning=FALSE, fig.align="center", fig.height=5}

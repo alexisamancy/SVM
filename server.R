@@ -18,20 +18,12 @@ library(randomForest)
 
 
 #Importation des données
-table<-read.csv("C:/Users/Amancy/Documents/GitHub/SVM/creditcard.csv")
-attach(table)
-
-#Rééchantillonnage et partionnement
-table_bis<-mutate(table,Class=ifelse(Class=="0","sain","defaut"))
-Class=as.data.frame(as.factor(table_bis$Class))
-table_bis<-replace(table_bis,31,Class)
-newtable <- SMOTE(Class ~ ., table_bis, perc.over =600 ,perc.under =250 )
-set.seed(123)  
-obs<-1:nrow(newtable)
-long_obs<-length(obs)
-ech<-sample(obs,0.7*long_obs,replace=FALSE)  
-train<-newtable[ech,]
-test<-newtable[-ech,] 
+train <- read.csv("C:/Users/Amancy/Documents/GitHub/SVM/creditcard_train.csv")
+test  <- read.csv("C:/Users/Amancy/Documents/GitHub/SVM/creditcard_test.csv")
+train$Class <- relevel(train$Class,"sain")
+train$Class <- factor(train$Class)
+test$Class<-relevel(test$Class,"sain")
+test$Class=factor(test$Class)
 
 #Préparation pour la comparaion des courbes ROC
 
@@ -51,7 +43,7 @@ test<-newtable[-ech,]
     prediction_rf<-predict(fit_100 ,test)
     score1_rf=prediction_rf[test$Class=="defaut"]
     score0_rf= prediction_rf[test$Class=="sain"]
-    pr_rf= pr.curve(score0_rf, score1_rf, curve = T)
+    pr_rf= pr.curve(score1_rf, score0_rf, curve = T)
     rf_pr<-plot(pr_rf,  col="mediumvioletred", lwd=3, main="Courbe PR", auc.main=FALSE)
     
   #Régression Logistique
@@ -74,7 +66,7 @@ test<-newtable[-ech,]
     #PR
     score1_lm= glm.probs[test$Class=="defaut"]
     score0_lm= glm.probs[test$Class=="sain"]
-    pr_lm= pr.curve(score0_lm, score1_lm, curve = T)
+    pr_lm= pr.curve(score1_lm, score0_lm, curve = T)
     lm_pr<-plot(pr_lm,  col="mediumvioletred", lwd=3, main="Courbe PR", auc.main=FALSE)
     
   #SVM
@@ -89,7 +81,7 @@ test<-newtable[-ech,]
     #PR
     score1_svm=pred[test$Class=="defaut"]
     score0_svm= pred[test$Class=="sain"]
-    pr_svm= pr.curve(score0_svm, score1_svm, curve = T)
+    pr_svm= pr.curve(score1_svm, score0_svm, curve = T)
     svm_pr<-plot(pr_svm,  col="mediumvioletred", lwd=3, main="Courbe PR", auc.main=FALSE)
 
 ################################################################
