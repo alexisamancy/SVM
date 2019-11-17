@@ -1,10 +1,3 @@
-
-
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-library(markdown)
-```
-
 # Implémentation des SVM dans le cadre de détection de fraude sur des cartes de crédit. 
 
 Cette application a été développée par [**Sabrina MAZLOUM**](https://www.linkedin.com/in/sabrina-mazloum-26359717a/) et [**Alexis AMANCY**](https://www.linkedin.com/in/alexis-amancy-a50901133/). Elle a pour but de montrer l'implémentation des **SVM** (Support Vector Machine) dans le cadre de **détection de fraude** sur des cartes de crédit. Les données utilisées pour cette démonstration sont retrouvables [ici](https://www.kaggle.com/mlg-ulb/creditcardfraud").    
