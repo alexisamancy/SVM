@@ -9,7 +9,6 @@ library(markdown)
 
 # Implémentation des SVM dans le cadre de détection de fraude sur des cartes de crédit. 
 
-<<<<<<< HEAD
 <p style="text-align:justify";>
 Cette application a été développée par [**Sabrina MAZLOUM**](https://www.linkedin.com/in/sabrina-mazloum-26359717a/) et [**Alexis AMANCY**](https://www.linkedin.com/in/alexis-amancy-a50901133/). Elle a pour but de montrer l'implémentation des **SVM** (Support Vector Machine) dans le cadre de **détection de fraude** sur des cartes de crédit. Les données utilisées pour cette démonstration sont retrouvables [ici](https://www.kaggle.com/mlg-ulb/creditcardfraud").    
 </p>
@@ -31,7 +30,7 @@ Le jeu de données contient des transactions effectuées par cartes de crédit e
 <p style="text-align:justify;>
 Le jeu de données contient uniquement des variables quantitatives, dont 28 (notées V1, V2, ..., V28) issues d'une transformation PCA en raison de leur anonymisation. Nous disposons également de la variable 'Time' qui représente le temps écoulé en secondes entre chaque transactions et la première transaction dans la base, ainsi que la variable 'Amount' qui représente le montant de la transaction. Notre variable de réponse est la variable 'Class', elle prend les valeurs 1 en cas de fraud et 0 sinon.
 </p>
-=======
+
 Cette application a été développée par [**Sabrina MAZLOUM**](https://www.linkedin.com/in/sabrina-mazloum-26359717a/) et [**Alexis AMANCY**](https://www.linkedin.com/in/alexis-amancy-a50901133/). Elle a pour but de montrer l'implémentation des **SVM** (Support Vector Machine) dans le cadre de **détection de fraude** sur des cartes de crédit. Les données utilisées pour cette démonstration sont retrouvables [ici](https://www.kaggle.com/mlg-ulb/creditcardfraud").    
 
 Ce projet a pour but de déployer un démonstrateur en ligne via RShiny à l'aide de Travis,   
@@ -49,4 +48,3 @@ Le jeu de données contient uniquement des variables quantitatives, dont 28 (not
 
 
 
->>>>>>> 57eed277774b1be8e44f32f785a3577abae40383
