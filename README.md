@@ -15,5 +15,6 @@ Le jeu de données contient des transactions effectuées par cartes de crédit e
 
 Le jeu de données contient uniquement des variables quantitatives, dont 28 (notées V1, V2, ..., V28) issues d'une transformation PCA en raison de leur anonymisation. Nous disposons également de la variable 'Time' qui représente le temps écoulé en secondes entre chaque transactions et la première transaction dans la base, ainsi que la variable 'Amount' qui représente le montant de la transaction. Notre variable de réponse est la variable 'Class', elle prend les valeurs 1 en cas de fraud et 0 sinon.
 
+## ShinyApp
 
-
+L'application en question est retrouvable sur [ce lien](https://alexisamancy.shinyapps.io/SVM_creditfraud/).
