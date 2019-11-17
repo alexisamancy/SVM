@@ -16,7 +16,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 <p style="text-align:center";>
-![](C:/Users/Amancy/Documents/GitHub/SVM/images/plot3d.png){width=35cm}
+![](plot3d.png){width=35cm}
 </p>
 
 <p style="text-align:justify";>
@@ -44,8 +44,8 @@ On peut maintenant faire de prédictions sur l'échantillon test. L'objectif ét
 </p>
 
 ```{r, include=FALSE, echo=FALSE, message=FALSE, warning=FALSE}
-train <- read.csv("C:/Users/Amancy/Documents/GitHub/SVM/creditcard_train.csv")
-test  <- read.csv("C:/Users/Amancy/Documents/GitHub/SVM/creditcard_test.csv")
+train <- read.csv("creditcard_train.csv")
+test  <- read.csv("creditcard_test.csv")
 train$Class <- relevel(train$Class,"sain")
 train$Class <- factor(train$Class)
 test$Class<-relevel(test$Class,"sain")

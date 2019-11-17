@@ -1,6 +1,6 @@
 library(tidyverse)
 #Importation des données
-table<-read.csv("C:/Users/Amancy/Documents/GitHub/SVM/creditcard.csv")
+table<-read.csv("creditcard.csv")
 attach(table)
 
 #Rééchantillonnage et partionnement
@@ -16,5 +16,5 @@ train<-newtable[ech,]
 test<-newtable[-ech,] 
 
 
-write.csv(train,"C:/Users/Amancy/Documents/GitHub/SVM/creditcard_train.csv", row.names = FALSE)
-write.csv(test,"C:/Users/Amancy/Documents/GitHub/SVM/creditcard_test.csv", row.names = FALSE)
+write.csv(train,"creditcard_train.csv", row.names = FALSE)
+write.csv(test,"creditcard_test.csv", row.names = FALSE)

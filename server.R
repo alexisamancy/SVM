@@ -18,8 +18,8 @@ library(randomForest)
 
 
 #Importation des données
-train <- read.csv("C:/Users/Amancy/Documents/GitHub/SVM/creditcard_train.csv")
-test  <- read.csv("C:/Users/Amancy/Documents/GitHub/SVM/creditcard_test.csv")
+train <- read.csv("creditcard_train.csv")
+test  <- read.csv("creditcard_test.csv")
 train$Class <- relevel(train$Class,"sain")
 train$Class <- factor(train$Class)
 test$Class<-relevel(test$Class,"sain")

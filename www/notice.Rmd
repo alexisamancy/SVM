@@ -17,7 +17,7 @@ library(markdown)
 <p>&nbsp; </p>
 <p>&nbsp; </p>
 <p style="color: #d1454e;font-size:3em;text-align:center">
-**Notice du démonstrateur**
+**Notice du dÃ©monstrateur**
 </p> 
 
 
@@ -26,28 +26,28 @@ Bonjour,
 </p>
 
 <p style="text-align:justify";>
-Cette application a été développée par [**Sabrina MAZLOUM**](https://www.linkedin.com/in/sabrina-mazloum-26359717a/) et [**Alexis AMANCY**](https://www.linkedin.com/in/alexis-amancy-a50901133/). Elle a pour but de montrer l'implémentation des **SVM** (Support Vector Machine) dans le cadre de **détection de fraude** sur des cartes de crédit. Les données utilisées pour cette démonstration sont retrouvables [ici](https://www.kaggle.com/mlg-ulb/creditcardfraud").    
+Cette application a Ã©tÃ© d?veloppÃ©e par [**Sabrina MAZLOUM**](https://www.linkedin.com/in/sabrina-mazloum-26359717a/) et [**Alexis AMANCY**](https://www.linkedin.com/in/alexis-amancy-a50901133/). Elle a pour but de montrer l'implÃ©mentation des **SVM** (Support Vector Machine) dans le cadre de **dÃ©tection de fraude** sur des cartes de crÃ©dit. Les donnÃ©es utilisÃ©es pour cette dÃ©monstration sont retrouvables [ici](https://www.kaggle.com/mlg-ulb/creditcardfraud").    
 </p>
 
 
 <p style="text-align:justify";>
-Développées véritablement dans les années 90 par **Boser**, **Guyon** et **Vapnik** à partir des considérations théoriques de ce dernier, les machines à vecteurs support (parfois traduis par « séparateurs à vastes marges ») est une technique de **Machine Learning** visant à solutionner des problématiques de classification et de régression. Dans notre cas précis, on s'intéresse à un problème de **classification**. L'objectif de notre SVM est alors de **prédire** au mieux si une transaction sera frauduleuse, ou non. Une brève introduction aux SVM sera présentée en préambule de notre démonstrateur. Libre à vous de vous référer au cours du professeur [C.Hurlin](https://sites.google.com/view/christophe-hurlin/home?authuser=0) qui vous expliquera de manière détaillée l'utilisation de ces derniers [ici](https://sites.google.com/view/christophe-hurlin/teaching-resources/support-vector-machine). 
+DÃ©veloppÃ©es vÃ©ritablement dans les annÃ©es 90 par **Boser**, **Guyon** et **Vapnik** Ã  partir des considÃ©rations thÃ©oriques de ce dernier, les machines Ã  vecteurs support (parfois traduis par "sÃ©parateurs Ã  vastes marges") est une technique de **Machine Learning** visant Ã  solutionner des problÃ©matiques de classification et de rÃ©gression. Dans notre cas prÃ©cis, on s'intÃ©resse Ã  un problÃ¨me de **classification**. L'objectif de notre SVM est alors de **prÃ©dire** au mieux si une transaction sera frauduleuse, ou non. Une brÃ¨ve introduction aux SVM sera prÃ©sentÃ©e en prÃ©ambule de notre dÃ©monstrateur. Libre Ã  vous de vous rÃ©fÃ©rer au cours du professeur [C.Hurlin](https://sites.google.com/view/christophe-hurlin/home?authuser=0) qui vous expliquera de maniÃ¨re dÃ©taillÃ©e l'utilisation de ces derniers [ici](https://sites.google.com/view/christophe-hurlin/teaching-resources/support-vector-machine). 
 </p>
 
 <p style="text-align:justify";>
-**Rshiny** permet de créer des démonstrateurs en ligne interactifs. Cette **interactivité** est très utile. Elle permet de visualier réellement l'implémentation d'une méthode en fonction de différents paramètres. Ici, vous aurez le choix entre plusieurs paramètres associés au SVM. Chaque **paramètre** et **hyper-paramètre** sera clairement expliqué afin de comprendre leur utilité. 
+**Rshiny** permet de crÃ©er des dÃ©monstrateurs en ligne interactifs. Cette **interactivitÃ©** est trÃ¨s utile. Elle permet de visualier rÃ©ellement l'implÃ©mentation d'une mÃ©thode en fonction de diffÃ¨rents paramÃ¨tres. Ici, vous aurez le choix entre plusieurs paramÃ¨tres associÃ©s au SVM. Chaque **paramÃ¨tre** et **hyper-paramÃ¨tre** sera clairement expliquÃ© afin de comprendre leur utilitÃ©. 
 </p>
 
 
 <p style="text-align:justify";>
-Pour aller plus loin dans la démonstation, nous avons décidés de challenger notre SVM à plusieurs benchmarks, la **régression logisitque** et le **RandomForest**. Ces trois méthodes seront comparées à l'aide de plusieurs **indicateurs de performance**. 
+Pour aller plus loin dans la dÃ©monstation, nous avons dÃ©cidÃ©s de challenger notre SVM Ã  plusieurs benchmarks, la **rÃ©gression logisitque** et le **RandomForest**. Ces trois mÃ©thodes seront comparÃ©es Ã  l'aide de plusieurs **indicateurs de performance**. 
 </p>
 
 <p>&nbsp; </p>
 
 <p style="text-align:justify";>
 <p style="color: #d1454e;font-size:2em;text-align:justify">**Remerciements**</p> 
-Nous souhaitons profondément remercier notre professeur [C.Hurlin](https://sites.google.com/view/christophe-hurlin/home?authuser=0) pour ses enseignements et sa pédagogie. Nous remercions de la même manière [Jérémy Dudek](http://www.crest.fr/pagesperso.php?user=3223) pour ses applications sur GitHub et Travis nous ayant permis de réaliser ce projet. 
+Nous souhaitons profondÃ©ment remercier notre professeur [C.Hurlin](https://sites.google.com/view/christophe-hurlin/home?authuser=0) pour ses enseignements et sa pÃ©dagogie. Nous remercions de la mÃªme maniÃ¨re [JÃ©rÃ©my Dudek](http://www.crest.fr/pagesperso.php?user=3223) pour ses applications sur GitHub et Travis nous ayant permis de rÃ©aliser ce projet. 
 </p>
 
 <p>&nbsp; </p>

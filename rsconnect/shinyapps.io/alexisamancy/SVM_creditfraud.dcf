@@ -1,0 +1,13 @@
+name: SVM_creditfraud
+title: SVM_creditfraud
+username:
+account: alexisamancy
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 1483521
+bundleId: 2595227
+url: https://alexisamancy.shinyapps.io/SVM_creditfraud/
+when: 1574005100.41186
+asMultiple: FALSE
+asStatic: FALSE
+ignoredFiles: creditcard.csv|projet R svm.R|table.rds

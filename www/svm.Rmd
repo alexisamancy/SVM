@@ -57,7 +57,7 @@ Pour cela, on réalise une **matrice de corrélation**:
 </p>
 
 <p style="text-align:center";>
-![](C:/Users/Amancy/Documents/GitHub/SVM/images/corrplot.jpg)
+![](images/corrplot.jpg)
 </p>
 
 <p style="text-align:justify";>
@@ -71,7 +71,7 @@ On veut maintenant vérifier si notre base de données est **déséquilibrée**.
 </p>
 
 <p style="text-align:center";>
-![](C:/Users/Amancy/Documents/GitHub/SVM/images/barplot1.jpg)
+![](images/barplot1.jpg)
 </p>
 
 <p style="text-align:justify";>
@@ -112,8 +112,8 @@ Voici la **répartition** des transactions dites saines et frauduleuses dans cha
 </p>
 
 ```{r, include=FALSE, echo=FALSE, warning=FALSE}
-train <- read.csv("C:/Users/Amancy/Documents/GitHub/SVM/creditcard_train.csv")
-test  <- read.csv("C:/Users/Amancy/Documents/GitHub/SVM/creditcard_test.csv")
+train <- read.csv("creditcard_train.csv")
+test  <- read.csv("creditcard_test.csv")
 train$Class <- factor(train$Class)
 test$Class=factor(test$Class) 
 ```
