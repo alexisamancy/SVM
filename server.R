@@ -188,7 +188,7 @@ shinyServer(function(input, output) {
     plot(svm_roc,col="#3729FC",main="Comparaison des courbes ROC", lwd=2, xlim=c(1,0), ylim=c(0,1), xlab="1 - Spécificité", ylab="Sensitivité")
     plot(rf_roc,col="#4FBC3F",add=TRUE,lwd=2, xlim=c(1,0), ylim=c(0,1), xlab="1 - Spécificité", ylab="Sensitivité")
     plot(lm_roc,col="#BC3131",add=TRUE,lwd=2, xlim=c(1,0), ylim=c(0,1), xlab="1 - Spécificité", ylab="Sensitivité")
-    legend("bottomright",legend=c("SVM : 0.994", "RandomForest : 0.999","Logistic : 0.990"),lty=c(1,1,1),
+    legend("bottomright",legend=c("SVM", "RandomForest","Logistic"),lty=c(1,1,1),
            lwd=c(1,1,1),col=c('#3729FC','#4FBC3F','#BC3131'), cex=1.2,
            title="Modèles", text.font=4, bg='#FCD7FB')
     

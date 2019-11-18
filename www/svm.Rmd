@@ -144,61 +144,42 @@ En théorie, le kernel trick est utilisé lorsque l'on veut remédier au **probl
 <p style="text-align:justify";>
 * Le **noyau linéaire** défini par : 
 </p>
-<p style="font-size:24px";>
+<p style="font-size:12px";>
 $$K(x_i,x_i)=\langle x_i,x_j \rangle$$
 </p>
 <p style="text-align:justify";>
 * Le **noyau polynomial** représente, dans l'échantillon d'apprentissage, la similarité des vecteurs dans un espace de degré polynomial plus grand que celui des variables d'origine. Un noyau polynomial est défini par : 
 </p>
-<p style="font-size:24px";>
+<p style="font-size:12px";>
 $$K(x_i,x_j)=(c+\langle x_i,x_j \rangle)^p$$
 </p>
 <p style="text-align:justify";>
-où 
+où $c~ et ~p$ sont des hyperparamètres.
 </p>
-</p>
-<p style="font-size:24px";>
-$$c~ et ~p$$ 
-</p>
-<p style="text-align:justify";>
-sont des hyperparamètres.
-</p>
+
 <p style="text-align:justify";>
 *	Le **noyau Gaussien** qu'on appelle aussi le noyau "Radial Basis Function", qui est utilisé lorsqu'il n'y a pas de connaissance préalable des données. Il est défini par : 
 </p>
-<p style="font-size:24px";>
+<p style="font-size:12px";>
 $$K(x_i,x_j)=\exp \bigg(-\frac{\lvert\lvert x_i-x_j \rvert\rvert^2}{2\sigma^2}\biggr)$$ 
 </p>
 <p style="text-align:justify";>
-où 
+où $\sigma$ est un hyperparamètre et où $\lvert \lvert x_i,x_j \lvert\vert^2$ est reconnu comme la distance euclidienne au carré entre deux vecteurs.
 </p>
-<p style="font-size:24px";>
-$$\sigma$$
-</p>
-<p style="text-align:justify";>
-est un hyperparamètre et où 
-</p>
-<p style="font-size:24px";>
-$$\lvert \lvert x_i,x_j \lvert\vert^2$$ 
-</p>
-<p style="text-align:justify";>
-est reconnu comme la distance euclidienne au carré entre deux vecteurs.
-</p>
+
+
 <p style="text-align:justify";>
 * Le **noyau sigmoide** est défini par : 
 </p>
-<p style="font-size:24px";>
+<p style="font-size:12px";>
 $$K(x_i,x_j)=tanh(\theta_1 \langle x_i,x_j\rangle+\theta_2)$$ 
 </p>
 <p style="text-align:justify";>
-où 
+où $\theta_1~ et ~\theta_2$ sont des hyperparamètres et où tanh (.) désigne la fonction tangente hyperbolique.
 </p>
-<p style="font-size:24px";>
-$$\theta_1~ et ~\theta_2$$
-</p>
-<p style="text-align:justify";>
-sont des hyperparamètres et où tanh (.) désigne la fonction tangente hyperbolique.
-</p>
+
+
+<p>&nbsp; </p>
 
 <p style="text-align:justify";>
 On s'intéresse maintenant au **paramètre de pénalisation** qu'on note C. Dans la pratique, les performances du SVM sont très sensibles au choix de ce paramètre. Le coût de pénalisation joue le rôle d’une constante de régularisation et cette dernière est d’autant plus forte que C est proche de 0. Le coût de pénalisation contrôle l'arbitrage entre la dimension de la marge et le taux d'erreur donc : 
@@ -210,13 +191,18 @@ On s'intéresse maintenant au **paramètre de pénalisation** qu'on note C. Dans
 * Si **C est grand**, l'accent est mis sur l'absence de mauvaise classification au prix d'une marge plus faible. Dans ce cas il y aura alors un risque de **sur-apprentissage** (overfitting).
 </p>
 
+<p>&nbsp; </p>
+
 <p style="text-align:justify";>
 On comprend que l'objectif est de déterminer la valeur du paramètre de pénalisation C qui minimise la probabilité d'erreur de classification mesurée sur l'échantillon test. Pour pouvoir trouver nos paramètres optimaux et notre kernel optimal, nous utilisons la fonction **_TUNE_** qui nous permet d'obtenir le taux d'erreur de classification pour chaque paramètre de pénalisation, chaque gamma et kernel différents, valeurs que l'on a choisi d'assigner à cette fonction. De plus, la méthode utilisée dans notre cas est la **validation croisée « k-fold »**. Il s’agit de découper nos données en k parties égales. Chacunes de ces dernières seront, tour à tour, utilisées comme échantillon test. Le reste, l’union des k-1 autres parties, est utilisé comme échantillon d’apprentissage. Cette validation croisée est donc une procédure utilisée pour éviter le sur-ajustement et estimer la compétence du modèle sur de nouvelles données.
 </p>
+
+<p>&nbsp; </p>
 
 <p style="text-align:justify";>
 Pour notre modèle, c'est le kernel **Radial Basis Function** qui est sélectionné. Voici un graphique qui montre le **taux d'exactitude** pour chaque combinaison du paramètre gamma et le coût de pénalisation.
 </p>
 
-
+<p>&nbsp; </p>
+<p>&nbsp; </p>
 
